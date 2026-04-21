@@ -62,11 +62,11 @@ Entonces el sistema retorna 400
 * Relación 1:N (cliente → preferencias)
 * Campos:
 
-  * tipo de inmueble
-  * rango de precio
-  * ubicación
-  * habitaciones
-  * características adicionales
+  * Property type
+  * Price range
+  * Location
+  * Number of bedrooms
+  * Additional features
 
 ---
 
