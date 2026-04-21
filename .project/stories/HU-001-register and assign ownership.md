@@ -58,11 +58,13 @@ Entonces:
 ```
 
 ## Notas
-
-- Campos mínimos: precio, zona, metros cuadrados, tipo de propiedad 
+* Relación 1:N (cliente → propiedades)
+* Relación 1:N (status → propiedades)
+* Relación 1:N (agente → propiedades)
+- Campos mínimos: price, location, meters2, type, statusId, clientId, agentId
 - Una propiedad pertenece a un vendedor
 - Una propiedad tiene un único agente activo
-- Estados: DISPONIBLE, ASIGNADA, VENDIDA
+- Estados: DISPONIBLE, ASIGNADA, VENDIDA, ALQUILADA
 
 ## Prioridad
 
