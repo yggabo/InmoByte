@@ -66,6 +66,10 @@ Entonces:
 - Una propiedad tiene un único agente activo
 - Estados: DISPONIBLE, ASIGNADA, VENDIDA, ALQUILADA
 
+## Estimación
+
+5 puntos
+
 ## Prioridad
 
 Alta
