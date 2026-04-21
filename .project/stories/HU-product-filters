@@ -1,0 +1,84 @@
+# Historia de Usuario
+
+## ID
+
+HU-product-filters
+
+## Título
+
+Búsqueda de inmuebles con filtros priorizados (tipo y zona)
+
+## Descripción
+
+**Como** agente inmobiliario
+**Quiero** poder buscar inmuebles mediante una API REST aplicando filtros donde *tipo* y *zona* tengan prioridad en la consulta
+**Para** obtener resultados más relevantes de forma rápida y optimizar la búsqueda de propiedades para mis clientes
+
+## Criterios de Aceptación
+
+### Escenario 1: Filtrado por tipo y zona como prioridad
+
+```gherkin id="sc001"
+Dado que el cliente realiza una petición GET a /api/inmuebles con parámetros tipo y zona
+Cuando el backend procesa la solicitud
+Entonces aplica primero los filtros de tipo y zona antes que cualquier otro filtro
+Y devuelve los resultados correspondientes en formato JSON
+```
+
+### Escenario 2: Filtrado combinado con prioridad
+
+```gherkin id="sc002"
+Dado que el cliente realiza una petición GET a /api/inmuebles con tipo, zona, precio, metros, habitaciones y baños
+Cuando el backend construye la consulta
+Entonces aplica primero tipo y zona
+Y posteriormente aplica el resto de filtros sobre el resultado filtrado
+```
+
+### Escenario 3: Búsqueda solo con tipo y zona
+
+```gherkin id="sc003"
+Dado que el cliente realiza una petición GET a /api/inmuebles con solo los parámetros tipo y zona
+Cuando el backend procesa la solicitud
+Entonces devuelve todos los inmuebles que coincidan con ambos criterios
+Y la respuesta es válida con código HTTP 200
+```
+
+### Escenario 4: Sin tipo o sin zona
+
+```gherkin id="sc004"
+Dado que el cliente realiza una petición GET sin tipo o sin zona
+Cuando el backend procesa la solicitud
+Entonces ejecuta la búsqueda aplicando los filtros restantes si existen
+Y mantiene la estructura de respuesta estándar
+```
+
+## Notas
+
+* API desarrollada en Python con Flask (REST API)
+* Endpoint: `/api/inmuebles`
+* Parámetros soportados:
+
+  * tipo
+  * zona
+  * precio_min / precio_max
+  * metros_min / metros_max
+  * habitaciones
+  * banos
+* `tipo` y `zona` deben ser tratados como filtros principales en la construcción de la query
+* La respuesta debe ser en formato JSON
+* El orden de aplicación de filtros es lógico (no afecta rendimiento SQL, pero sí la construcción de query en backend)
+* Debe soportar filtros opcionales y combinables
+
+## Prioridad
+
+Alta
+
+## Tareas
+
+| Código    | Nombre                                                                | Responsable |
+| --------- | --------------------------------------------------------------------- | ----------- |
+| HU-002-01 | Definir estructura de filtros en API REST                             | Backend     |
+| HU-002-02 | Implementar prioridad de filtros tipo y zona en query builder         | Backend     |
+| HU-002-03 | Implementar filtros adicionales (precio, metros, habitaciones, baños) | Backend     |
+| HU-002-04 | Validación de parámetros de entrada                                   | Backend     |
+| HU-002-05 | Pruebas unitarias de filtrado combinado                               | QA          |
