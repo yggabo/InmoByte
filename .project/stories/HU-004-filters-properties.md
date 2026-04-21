@@ -70,6 +70,10 @@ Y mantiene la estructura de respuesta estándar
 * El orden de aplicación de filtros es lógico (no afecta rendimiento SQL, pero sí la construcción de query en backend)
 * Debe soportar filtros opcionales y combinables
 
+## Estimación
+
+7 puntos
+
 ## Prioridad
 
 Alta
