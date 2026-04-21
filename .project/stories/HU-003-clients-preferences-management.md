@@ -66,7 +66,10 @@ Entonces el sistema retorna 400
   * Price range
   * Location
   * Number of bedrooms
+  * Number of bathrooms
   * Additional features
+  * living space range
+
 
 ---
 
