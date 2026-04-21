@@ -1,5 +1,5 @@
 from app.core.extensions import db
-import datetime
+from sqlalchemy import func
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,7 +20,7 @@ class Users(db.Model):
 class TokenBlocklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(36), nullable=False, index=True)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=func.now(), nullable=False)
 
     def __repr__(self):
         return f'<TokenBlocklist {self.jti}>'

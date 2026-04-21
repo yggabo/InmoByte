@@ -7,12 +7,12 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
 class DevelopmentConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///dev.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', 'mysql+pymysql://mariadb:mariadb@mariadb:3306/app_db')
     DEBUG = True
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', 'mysql+pymysql://mariadb:mariadb@mariadb:3306/app_db')
     JWT_SECRET_KEY = 'test_secret_key_with_32_chars_min!'
 
 class ProductionConfig(Config):

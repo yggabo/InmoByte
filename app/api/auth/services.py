@@ -1,7 +1,7 @@
 from app.api.auth.models import Users, TokenBlocklist
 from app.core.extensions import db, bcrypt
 from app.core.exceptions import APIException
-from datetime import datetime, timezone
+from sqlalchemy import func
 from flask_jwt_extended import create_access_token, create_refresh_token
 
 class AuthService:
@@ -31,7 +31,7 @@ class AuthService:
 
     @staticmethod
     def revoke_token(jti):
-        now = datetime.now(timezone.utc)
-        db.session.add(TokenBlocklist(jti=jti, created_at=now))
-        # Explicito: si hay varias operaciones, el commit() se hace despues o aquí, dependiendo del flujo.
+        new_token = TokenBlocklist(jti=jti)
+        db.session.add(new_token)
         db.session.commit()
+        return new_token
