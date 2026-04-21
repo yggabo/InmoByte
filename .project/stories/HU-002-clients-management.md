@@ -72,7 +72,7 @@ Y retorna 200
 * Datos para modelo
     * name 
     * email
-    * telephon
+    * telephone
     * type 
     * create_at
     * update_at
