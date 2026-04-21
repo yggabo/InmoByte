@@ -2,16 +2,16 @@
 
 ## ID
 
-HU-product-filters
+HU-004-filters
 
 ## Título
 
-Búsqueda de inmuebles con filtros priorizados (tipo y zona)
+Búsqueda de inmuebles con filtros priorizados (type y zone)
 
 ## Descripción
 
 **Como** agente inmobiliario
-**Quiero** poder buscar inmuebles mediante una API REST aplicando filtros donde *tipo* y *zona* tengan prioridad en la consulta
+**Quiero** poder buscar inmuebles mediante una API REST aplicando filtros donde *type* y *zone* tengan prioridad en la consulta
 **Para** obtener resultados más relevantes de forma rápida y optimizar la búsqueda de propiedades para mis clientes
 
 ## Criterios de Aceptación
@@ -55,16 +55,17 @@ Y mantiene la estructura de respuesta estándar
 ## Notas
 
 * API desarrollada en Python con Flask (REST API)
-* Endpoint: `/api/inmuebles`
+* Endpoint: `/api/properties`
 * Parámetros soportados:
 
-  * tipo
-  * zona
-  * precio_min / precio_max
-  * metros_min / metros_max
-  * habitaciones
-  * banos
-* `tipo` y `zona` deben ser tratados como filtros principales en la construcción de la query
+  * status-ID
+  * type  
+  * location
+  * min_price / max_price
+  * living_space_min / living_space_max
+  * rooms
+  * bathrooms
+* `type` y `location` deben ser tratados como filtros principales en la construcción de la query
 * La respuesta debe ser en formato JSON
 * El orden de aplicación de filtros es lógico (no afecta rendimiento SQL, pero sí la construcción de query en backend)
 * Debe soportar filtros opcionales y combinables
@@ -77,8 +78,8 @@ Alta
 
 | Código    | Nombre                                                                | Responsable |
 | --------- | --------------------------------------------------------------------- | ----------- |
-| HU-002-01 | Definir estructura de filtros en API REST                             | Backend     |
-| HU-002-02 | Implementar prioridad de filtros tipo y zona en query builder         | Backend     |
-| HU-002-03 | Implementar filtros adicionales (precio, metros, habitaciones, baños) | Backend     |
-| HU-002-04 | Validación de parámetros de entrada                                   | Backend     |
-| HU-002-05 | Pruebas unitarias de filtrado combinado                               | QA          |
+| HU-004-01 | Definir estructura de filtros en API REST                             | Backend     |
+| HU-004-02 | Implementar prioridad de filtros tipo y zona en query builder         | Backend     |
+| HU-004-03 | Implementar filtros adicionales (precio, metros, habitaciones, baños) | Backend     |
+| HU-004-04 | Validación de parámetros de entrada                                   | Backend     |
+| HU-004-05 | Pruebas unitarias de filtrado combinado                               | QA          |
