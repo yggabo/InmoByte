@@ -72,8 +72,8 @@ Alta
 
 | Código | Nombre | Responsable |
 |--------|--------|-------------|
-| HU-002-01 | Endpoint POST /properties | - |
-| HU-002-02 | Validaciones de entrada | - |
-| HU-002-03 | Endpoint PATCH asignación de agente | - |
-| HU-002-04 | Gestión de estados | - |
-| HU-002-05 | Tests de API | - |
+| HU-001-01 | Endpoint POST /properties | - |
+| HU-001-02 | Validaciones de entrada | - |
+| HU-001-03 | Endpoint PATCH asignación de agente | - |
+| HU-001-04 | Gestión de estados | - |
+| HU-001-05 | Tests de API | - |
