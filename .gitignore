@@ -8,3 +8,4 @@ instance/
 .vscode/
 kanbam.md
 data/*
+AGENTS.md

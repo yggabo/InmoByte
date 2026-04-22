@@ -13,7 +13,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', 'mysql+pymysql://mariadb:mariadb@mariadb:3306/app_db')
-    JWT_SECRET_KEY = 'test_secret_key_with_32_chars_min!'
+    JWT_SECRET_KEY = 'test_secret_key_with_32_chars_minimum!'
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
