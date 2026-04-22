@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
+from flasgger import Swagger
 
 from app.core.config import config_by_name
 from app.core.extensions import db, jwt, bcrypt
@@ -28,7 +29,18 @@ def create_app(config_name=None):
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
-    
+
+    app.config['SWAGGER'] = {
+        'title': 'InmoByte API',
+        'uiversion': 3,
+        'info': {
+            'title': 'InmoByte API',
+            'version': '1.0',
+            'description': 'API for real estate management system'
+        }
+    }
+    Swagger(app)
+
     register_cors(app)
     register_error_handlers(app)
     register_models()
