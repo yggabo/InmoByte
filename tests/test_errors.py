@@ -5,7 +5,6 @@ from app import create_app
 
 class ErrorHandlingTestCase(unittest.TestCase):
     def setUp(self):
-        os.environ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         self.app = create_app('test')
         self.client = self.app.test_client()
         
