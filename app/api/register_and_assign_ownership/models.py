@@ -1,0 +1,39 @@
+from app.core.extensions import db
+
+class Client(db.Model):
+    __tablename__ = "clients"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True)
+
+class Agent(db.Model):
+    __tablename__ = "agents"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+
+class PropertyStatus(db.Model):
+    __tablename__ = "property_status"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), unique=True)
+
+class Property(db.Model):
+    __tablename__ = "properties"
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(50))
+    location = db.Column(db.String(255))
+    price_min = db.Column(db.Numeric(12, 2))
+    price_max = db.Column(db.Numeric(12, 2))
+    living_space_min = db.Column(db.Numeric(10, 2))
+    living_space_max = db.Column(db.Numeric(10, 2))
+    rooms = db.Column(db.Integer)
+    bathrooms = db.Column(db.Integer)
+    description = db.Column(db.String(255))
+
+    client_id = db.Column(db.Integer, db.ForeignKey("clients.id"))
+    agent_id = db.Column(db.Integer, db.ForeignKey("agents.id"), nullable=True)
+    status_id = db.Column(db.Integer, db.ForeignKey("property_status.id"))
+
+    client = db.relationship("Client", backref="properties")
+    agent = db.relationship("Agent", backref="properties")
+    status = db.relationship("PropertyStatus", backref="properties")
