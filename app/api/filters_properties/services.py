@@ -70,7 +70,7 @@ class PropertyService:
         """
         Get a specific property by ID.
         """
-        return Property.query.get(property_id)
+        return db.session.get(Property, property_id)
 
     @staticmethod
     def create_property(data):
