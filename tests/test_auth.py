@@ -8,7 +8,6 @@ from app.api.auth.models import TokenBlocklist
 
 class JWTAuthTestCase(unittest.TestCase):
     def setUp(self):
-        os.environ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         self.app = create_app('test')
         self.client = self.app.test_client()
         

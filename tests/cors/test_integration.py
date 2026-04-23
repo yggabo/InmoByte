@@ -7,7 +7,6 @@ from app.core.extensions import db
 
 class CORSIntegrationTestCase(unittest.TestCase):
     def setUp(self):
-        os.environ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         os.environ['CORS_ORIGINS'] = 'http://localhost:3000'
         self.app = create_app('test')
         self.client = self.app.test_client()

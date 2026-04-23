@@ -8,7 +8,6 @@ from app.core.extensions import db
 
 class JWTAuthHandlersTestCase(unittest.TestCase):
     def setUp(self):
-        os.environ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         self.app = create_app('test')
         self.client = self.app.test_client()
         
