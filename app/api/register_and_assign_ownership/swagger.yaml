@@ -1,0 +1,157 @@
+info:
+  title: InmoByte API - HU-002
+  description: Documentación de la API para el Registro de Propiedades y Asignación de Agentes (HU-002).
+  version: 1.0.0
+
+tags:
+  - name: Propiedades
+    description: Operaciones relacionadas con la gestión de propiedades.
+
+paths:
+  /register_and_assign_ownership/properties:
+    post:
+      tags:
+        - Propiedades
+      summary: Registrar una nueva propiedad
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Property'
+      responses:
+        '201':
+          description: Propiedad creada
+        '400':
+          description: Datos inválidos
+    get:
+      tags:
+        - Propiedades
+      summary: Listar todas las propiedades
+      responses:
+        '200':
+          description: Listado de propiedades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Property'
+
+  /register_and_assign_ownership/properties/{property_id}:
+    parameters:
+      - name: property_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Propiedades
+      summary: Ver detalles de una propiedad
+      responses:
+        '200':
+          description: Detalles de la propiedad
+        '404':
+          description: Propiedad no encontrada
+    put:
+      tags:
+        - Propiedades
+      summary: Editar una propiedad
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Property'
+      responses:
+        '200':
+          description: Propiedad actualizada
+        '404':
+          description: Propiedad no encontrada
+    delete:
+      tags:
+        - Propiedades
+      summary: Eliminar una propiedad
+      responses:
+        '200':
+          description: Propiedad eliminada
+        '404':
+          description: Propiedad no encontrada
+
+  /register_and_assign_ownership/properties/{property_id}/assign-agent:
+    patch:
+      tags:
+        - Propiedades
+      summary: Asignar un agente a una propiedad
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                agent_id:
+                  type: integer
+      responses:
+        '200':
+          description: Agente asignado con éxito
+        '404':
+          description: Propiedad no encontrada
+        '409':
+          description: Conflicto en la asignación
+
+components:
+  schemas:
+    Property:
+      type: object
+      required:
+        - type
+        - location
+        - price_min
+        - price_max
+        - living_space_min
+        - living_space_max
+        - rooms
+        - bathrooms
+        - client_id
+        - status_id
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        type:
+          type: string
+          example: Casa
+        location:
+          type: string
+          example: "Centro, Ciudad de México"
+        price_min:
+          type: number
+          format: float
+        price_max:
+          type: number
+          format: float
+        living_space_min:
+          type: number
+          format: float
+        living_space_max:
+          type: number
+          format: float
+        rooms:
+          type: integer
+        bathrooms:
+          type: integer
+        description:
+          type: string
+        client_id:
+          type: integer
+        status_id:
+          type: integer
+        agent_id:
+          type: integer
+          nullable: true

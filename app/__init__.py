@@ -3,13 +3,14 @@ from flask import Flask
 from dotenv import load_dotenv
 
 from app.core.config import config_by_name
-from app.core.extensions import db, jwt, bcrypt
+from app.core.extensions import db, jwt, bcrypt, swagger
 from app.core.errors import register_error_handlers
 from app.core.jwt_handlers import register_jwt_handlers
 from app.core.cors_config import register_cors
 from app.core.blueprints import register_blueprints
 from app.core.models import register_models
 from app.core.jwt_config import JWTConfig
+from app.core.swagger_config import register_swagger
 
 load_dotenv()
 
@@ -28,6 +29,8 @@ def create_app(config_name=None):
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
+    
+    register_swagger(app, swagger)
     
     register_cors(app)
     register_error_handlers(app)
