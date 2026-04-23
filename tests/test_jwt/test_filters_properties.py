@@ -1,18 +1,25 @@
 import unittest
 import json
-import os
 from app import create_app
 from app.core.extensions import db
 from app.api.filters_properties.models import Property
+from app.api.register_and_assign_ownership.models import Client, Agent, PropertyStatus
 
 class FiltersPropertiesTestCase(unittest.TestCase):
     def setUp(self):
-        os.environ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         self.app = create_app('test')
         self.client = self.app.test_client()
         
         with self.app.app_context():
             db.create_all()
+            # Crear registros relacionados
+            client = Client(name="Test Client", email="test@example.com")
+            agent = Agent(name="Test Agent")
+            status1 = PropertyStatus(id=1, name="DISPONIBLE")
+            status2 = PropertyStatus(id=2, name="ASIGNADA")
+            status3 = PropertyStatus(id=3, name="VENDIDA")
+            db.session.add_all([client, agent, status1, status2, status3])
+            db.session.commit()
             # Crear usuario para JWT
             self.client.post('/api/auth/register', json={
                 'username': 'testuser',
@@ -36,39 +43,45 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         return data['data']['access_token']
 
     def _create_test_properties(self):
-        # Crear algunas propiedades de prueba
+        # Crear algunas propiedades de prueba con el esquema correcto
         prop1 = Property(
-            title='Casa en Madrid',
-            description='Hermosa casa',
-            price=300000.0,
             type='house',
             location='Madrid',
+            price_min=250000.0,
+            price_max=350000.0,
+            living_space_min=100.0,
+            living_space_max=150.0,
             rooms=3,
             bathrooms=2,
-            living_space=120.0,
-            status_id='available'
+            description='Hermosa casa',
+            client_id=1,
+            status_id=1  # DISPONIBLE
         )
         prop2 = Property(
-            title='Apartamento en Barcelona',
-            description='Apartamento moderno',
-            price=200000.0,
             type='apartment',
             location='Barcelona',
+            price_min=150000.0,
+            price_max=250000.0,
+            living_space_min=70.0,
+            living_space_max=90.0,
             rooms=2,
             bathrooms=1,
-            living_space=80.0,
-            status_id='available'
+            description='Apartamento moderno',
+            client_id=1,
+            status_id=1
         )
         prop3 = Property(
-            title='Terreno en Valencia',
-            description='Terreno amplio',
-            price=50000.0,
             type='land',
             location='Valencia',
+            price_min=40000.0,
+            price_max=60000.0,
+            living_space_min=900.0,
+            living_space_max=1100.0,
             rooms=None,
             bathrooms=None,
-            living_space=1000.0,
-            status_id='sold'
+            description='Terreno amplio',
+            client_id=1,
+            status_id=3  # VENDIDO
         )
         db.session.add_all([prop1, prop2, prop3])
         db.session.commit()
@@ -79,7 +92,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(len(data['data']), 3)
-        self.assertIn('Casa en Madrid', [p['title'] for p in data['data']])
+        self.assertIn('house', [p['type'] for p in data['data']])
 
     def test_get_properties_with_type_filter(self):
         """Filtrar propiedades por tipo"""
@@ -99,15 +112,16 @@ class FiltersPropertiesTestCase(unittest.TestCase):
 
     def test_get_properties_with_price_filters(self):
         """Filtrar propiedades por rango de precio"""
-        res = self.client.get('/api/properties?min_price=100000&max_price=250000')
+        res = self.client.get('/api/properties?min_price=200000&max_price=300000')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
+        # Debería devolver la casa (price_min=250000, price_max=350000) que se solapa con 200000-300000
         self.assertEqual(len(data['data']), 1)
-        self.assertEqual(data['data'][0]['title'], 'Apartamento en Barcelona')
+        self.assertEqual(data['data'][0]['type'], 'house')
 
     def test_get_properties_with_multiple_filters(self):
         """Filtrar con múltiples criterios"""
-        res = self.client.get('/api/properties?type=apartment&location=Barcelona&min_price=150000')
+        res = self.client.get('/api/properties?type=apartment&location=Barcelona&min_price=140000')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(len(data['data']), 1)
@@ -117,13 +131,13 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         """Obtener propiedad por ID existente"""
         # Obtener el ID de una propiedad existente
         with self.app.app_context():
-            prop = Property.query.filter_by(title='Casa en Madrid').first()
+            prop = Property.query.filter_by(type='house').first()
             prop_id = prop.id
         
         res = self.client.get(f'/api/properties/{prop_id}')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
-        self.assertEqual(data['data']['title'], 'Casa en Madrid')
+        self.assertEqual(data['data']['type'], 'house')
 
     def test_get_property_by_id_not_found(self):
         """Obtener propiedad por ID inexistente"""
@@ -138,15 +152,17 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         headers = {'Authorization': f'Bearer {token}'}
         
         new_property_data = {
-            'title': 'Nueva Casa',
-            'description': 'Casa nueva',
-            'price': 400000.0,
             'type': 'house',
             'location': 'Sevilla',
+            'price_min': 350000.0,
+            'price_max': 450000.0,
+            'living_space_min': 140.0,
+            'living_space_max': 160.0,
             'rooms': 4,
             'bathrooms': 3,
-            'living_space': 150.0,
-            'status_id': 'available'
+            'description': 'Casa nueva',
+            'client_id': 1,
+            'status_id': 1
         }
         
         res = self.client.post('/api/properties', 
@@ -154,16 +170,23 @@ class FiltersPropertiesTestCase(unittest.TestCase):
                              headers=headers)
         self.assertEqual(res.status_code, 201)
         data = json.loads(res.data)
-        self.assertEqual(data['data']['title'], 'Nueva Casa')
+        self.assertEqual(data['data']['type'], 'house')
         self.assertIn('Property created successfully', data['message'])
 
     def test_create_property_no_auth(self):
         """Intentar crear propiedad sin autenticación"""
         new_property_data = {
-            'title': 'Casa sin auth',
-            'price': 100000.0,
             'type': 'house',
-            'location': 'Test'
+            'location': 'Test',
+            'price_min': 80000.0,
+            'price_max': 120000.0,
+            'living_space_min': 100.0,
+            'living_space_max': 120.0,
+            'rooms': 3,
+            'bathrooms': 2,
+            'description': 'Casa sin auth',
+            'client_id': 1,
+            'status_id': 1
         }
         
         res = self.client.post('/api/properties', json=new_property_data)
@@ -174,8 +197,8 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         token = self._get_access_token()
         headers = {'Authorization': f'Bearer {token}'}
         
-        # Datos faltantes
-        invalid_data = {'title': 'Casa inválida'}
+        # Datos faltantes - type es requerido
+        invalid_data = {'location': 'Casa inválida'}
         
         res = self.client.post('/api/properties', 
                              json=invalid_data, 
@@ -183,5 +206,4 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
 
 if __name__ == '__main__':
-    unittest.main()</content>
-<parameter name="filePath">/home/penascalf5/Escritorio/InmoByte/tests/test_jwt/test_filters_properties.py
+    unittest.main()

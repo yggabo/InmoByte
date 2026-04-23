@@ -23,25 +23,31 @@ class PropertyService:
 
         if filters.get('min_price'):
             try:
-                query = query.filter(Property.price >= float(filters['min_price']))
+                min_price = float(filters['min_price'])
+                # Filtrar propiedades donde price_min está dentro del rango solicitado
+                query = query.filter(Property.price_min >= min_price)
             except (ValueError, TypeError):
                 pass
             
         if filters.get('max_price'):
             try:
-                query = query.filter(Property.price <= float(filters['max_price']))
+                max_price = float(filters['max_price'])
+                # Filtrar propiedades donde price_min está dentro del rango solicitado
+                query = query.filter(Property.price_min <= max_price)
             except (ValueError, TypeError):
                 pass
             
         if filters.get('living_space_min'):
             try:
-                query = query.filter(Property.living_space >= float(filters['living_space_min']))
+                min_space = float(filters['living_space_min'])
+                query = query.filter(Property.living_space_min >= min_space)
             except (ValueError, TypeError):
                 pass
 
         if filters.get('living_space_max'):
             try:
-                query = query.filter(Property.living_space <= float(filters['living_space_max']))
+                max_space = float(filters['living_space_max'])
+                query = query.filter(Property.living_space_min <= max_space)
             except (ValueError, TypeError):
                 pass
             

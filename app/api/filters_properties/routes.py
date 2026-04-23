@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required
 
 bp = Blueprint('filters_properties', __name__)
 
-@bp.route('/', methods=['GET'])
+@bp.route('/', methods=['GET'], strict_slashes=False)
 def get_properties():
     """
     Endpoint to search properties with filters.
@@ -22,7 +22,7 @@ def get_properties():
     except Exception as e:
         return error_response(str(e), status_code=400)
 
-@bp.route('/<int:property_id>', methods=['GET'])
+@bp.route('/<int:property_id>', methods=['GET'], strict_slashes=False)
 def get_property(property_id):
     """
     Endpoint to get a single property details.
@@ -33,7 +33,7 @@ def get_property(property_id):
     
     return success_response(data=property_obj.to_dict())
 
-@bp.route('/', methods=['POST'])
+@bp.route('/', methods=['POST'], strict_slashes=False)
 @jwt_required()
 def create_property():
     """
@@ -42,6 +42,12 @@ def create_property():
     data = request.get_json()
     if not data:
         return error_response("No data provided", status_code=400)
+    
+    # Validar campos requeridos
+    required_fields = ['type', 'location', 'price_min', 'price_max', 'living_space_min', 'living_space_max', 'rooms', 'bathrooms', 'client_id', 'status_id']
+    missing_fields = [field for field in required_fields if field not in data]
+    if missing_fields:
+        return error_response(f"Missing required fields: {', '.join(missing_fields)}", status_code=400)
     
     try:
         new_property = PropertyService.create_property(data)
