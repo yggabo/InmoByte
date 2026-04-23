@@ -3,7 +3,6 @@ import json
 import os
 
 os.environ['FLASK_ENV'] = 'test'
-os.environ['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mariadb:mariadb@127.0.0.1:3306/app_db'
 
 from app import create_app
 from app.core.extensions import db

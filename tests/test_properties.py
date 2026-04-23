@@ -10,9 +10,13 @@ from app.api.register_and_assign_ownership.models import Property, PropertyStatu
 @pytest.fixture(scope='module')
 def app():
     """Configuración de la aplicación para pruebas."""
-    # Si no hay una URI definida en el entorno, usamos SQLite en memoria por defecto
     if not os.environ.get('SQLALCHEMY_DATABASE_URI'):
-        os.environ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        from dotenv import load_dotenv
+        load_dotenv()
+        os.environ['SQLALCHEMY_DATABASE_URI'] = (
+            f"mysql+pymysql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
+            f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_TEST_NAME', 'app_db_test')}"
+        )
     
     _app = create_app('test')
     return _app
