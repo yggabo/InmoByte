@@ -1,9 +1,11 @@
 from app.core.extensions import db
 from app.api.register_and_assign_ownership.models import Property, PropertyStatus
-from .models import Offer
-from .schemas import OfferStatus, OfferTypeEnum
+from .models import Offer, OfferStatus
 
 AVAILABLE_STATES = ["DISPONIBLE", "ASIGNADA"]
+
+PENDING_STATUS_ID = 1
+ACCEPTED_STATUS_ID = 2
 
 def create_offer(data):
     property_id = data.get("property_id")
@@ -20,7 +22,7 @@ def create_offer(data):
     new_offer = Offer(
         type=data.get("type"),
         offered_price=data.get("offered_price"),
-        status=OfferStatus.PENDIENTE,
+        status_id=PENDING_STATUS_ID,
         property_id=property_id,
         client_id=data.get("client_id"),
         agent_id=data.get("agent_id")
@@ -38,23 +40,20 @@ def get_offers_by_property(property_id):
 def get_offer_by_id(offer_id):
     return db.session.get(Offer, offer_id)
 
-def update_offer_status(offer_id, new_status):
+def update_offer_status(offer_id, new_status_id):
     offer = db.session.get(Offer, offer_id)
     if not offer:
         return None
     
-    offer.status = new_status
+    offer.status_id = new_status_id
     db.session.commit()
     
-    if new_status == OfferStatus.ACEPTADA:
+    if new_status_id == ACCEPTED_STATUS_ID:
         property_obj = offer.property
         if property_obj:
-            if offer.type == OfferTypeEnum.COMPRA:
-                new_status_name = "VENDIDA"
-            else:
-                new_status_name = "ALQUILADA"
+            new_property_status = "VENDIDA" if offer.type == "COMPRA" else "ALQUILADA"
             
-            status_record = PropertyStatus.query.filter_by(name=new_status_name).first()
+            status_record = PropertyStatus.query.filter_by(name=new_property_status).first()
             if status_record:
                 property_obj.status_id = status_record.id
         

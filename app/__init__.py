@@ -11,7 +11,7 @@ from app.core.cors_config import register_cors
 from app.core.blueprints import register_blueprints
 from app.core.models import register_models
 from app.core.jwt_config import JWTConfig
-from app.api.roles.seeds import seed_roles
+from app.api.roles.seeds import seed_roles, seed_offer_status
 
 load_dotenv()
 
@@ -51,5 +51,6 @@ def create_app(config_name=None):
     with app.app_context():
         db.create_all()
         seed_roles()
+        seed_offer_status()
     
     return app

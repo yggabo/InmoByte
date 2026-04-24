@@ -4,7 +4,7 @@ import os
 from app import create_app
 from app.core.extensions import db as _db
 from app.api.register_and_assign_ownership.models import Property, PropertyStatus, Client, Agent
-from app.api.offers.models import Offer
+from app.api.offers.models import Offer, OfferStatus
 
 @pytest.fixture(scope='module')
 def app():
@@ -35,9 +35,13 @@ def db(app):
         status_2 = PropertyStatus(id=2, name="ASIGNADA")
         status_3 = PropertyStatus(id=3, name="VENDIDA")
         status_4 = PropertyStatus(id=4, name="ALQUILADA")
+        offer_status_1 = OfferStatus(id=1, name="PENDIENTE")
+        offer_status_2 = OfferStatus(id=2, name="ACEPTADA")
+        offer_status_3 = OfferStatus(id=3, name="RECHAZADA")
+        offer_status_4 = OfferStatus(id=4, name="CANCELADA")
         client_obj = Client(id=1, name="Juan Vendedor", email="juan@example.com")
         agent_obj = Agent(id=1, name="Agente 007")
-        _db.session.add_all([status_1, status_2, status_3, status_4, client_obj, agent_obj])
+        _db.session.add_all([status_1, status_2, status_3, status_4, offer_status_1, offer_status_2, offer_status_3, offer_status_4, client_obj, agent_obj])
         _db.session.commit()
         
         yield _db
@@ -155,7 +159,7 @@ def test_get_offers_by_property(client, available_property, db):
     offer = Offer(
         type="COMPRA",
         offered_price=110000,
-        status="PENDIENTE",
+        status_id=1,
         property_id=1,
         client_id=1
     )
@@ -174,7 +178,7 @@ def test_accept_offer_compra_updates_property(client, available_property, db):
     offer = Offer(
         type="COMPRA",
         offered_price=110000,
-        status="PENDIENTE",
+        status_id=1,
         property_id=1,
         client_id=1
     )
@@ -182,7 +186,7 @@ def test_accept_offer_compra_updates_property(client, available_property, db):
     db.session.commit()
     offer_id = offer.id
     
-    res = client.patch(f'/offers/{offer_id}/status', json={"status": "ACEPTADA"})
+    res = client.patch(f'/offers/{offer_id}/status', json={"status_id": 2})
     assert res.status_code == 200
     data = json.loads(res.data)
     assert data['status'] == "ACEPTADA"
@@ -197,7 +201,7 @@ def test_accept_offer_alquiler_updates_property(client, assigned_property, db):
     offer = Offer(
         type="ALQUILER",
         offered_price=900,
-        status="PENDIENTE",
+        status_id=1,
         property_id=2,
         client_id=1
     )
@@ -205,7 +209,7 @@ def test_accept_offer_alquiler_updates_property(client, assigned_property, db):
     db.session.commit()
     offer_id = offer.id
     
-    res = client.patch(f'/offers/{offer_id}/status', json={"status": "ACEPTADA"})
+    res = client.patch(f'/offers/{offer_id}/status', json={"status_id": 2})
     assert res.status_code == 200
     data = json.loads(res.data)
     assert data['status'] == "ACEPTADA"
@@ -220,7 +224,7 @@ def test_reject_offer_does_not_change_property(client, available_property, db):
     offer = Offer(
         type="COMPRA",
         offered_price=110000,
-        status="PENDIENTE",
+        status_id=1,
         property_id=1,
         client_id=1
     )
@@ -228,7 +232,7 @@ def test_reject_offer_does_not_change_property(client, available_property, db):
     db.session.commit()
     offer_id = offer.id
     
-    res = client.patch(f'/offers/{offer_id}/status', json={"status": "RECHAZADA"})
+    res = client.patch(f'/offers/{offer_id}/status', json={"status_id": 3})
     assert res.status_code == 200
     data = json.loads(res.data)
     assert data['status'] == "RECHAZADA"
@@ -242,7 +246,7 @@ def test_cancel_offer_does_not_change_property(client, available_property, db):
     offer = Offer(
         type="ALQUILER",
         offered_price=850,
-        status="PENDIENTE",
+        status_id=1,
         property_id=1,
         client_id=1
     )
@@ -250,7 +254,7 @@ def test_cancel_offer_does_not_change_property(client, available_property, db):
     db.session.commit()
     offer_id = offer.id
     
-    res = client.patch(f'/offers/{offer_id}/status', json={"status": "CANCELADA"})
+    res = client.patch(f'/offers/{offer_id}/status', json={"status_id": 4})
     assert res.status_code == 200
     data = json.loads(res.data)
     assert data['status'] == "CANCELADA"

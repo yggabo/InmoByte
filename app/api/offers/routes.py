@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from .services import create_offer, get_offers_by_property, get_offer_by_id, update_offer_status
-from .schemas import OfferSchema, OfferStatusUpdateSchema, OfferStatus
+from .schemas import OfferSchema, OfferStatusUpdateSchema
 
 offers_bp = Blueprint('offers', __name__)
 offer_schema = OfferSchema()
@@ -104,7 +104,7 @@ def update_offer_status_endpoint(offer_id):
     tags:
       - Offers
     summary: Update offer status
-    description: Updates the status of an offer (accept, reject, or cancel)
+    description: Updates the status of an offer (accept=2, reject=3, cancel=4)
     parameters:
       - name: offer_id
         in: path
@@ -118,12 +118,12 @@ def update_offer_status_endpoint(offer_id):
         schema:
           type: object
           required:
-            - status
+            - status_id
           properties:
-            status:
-              type: string
-              enum: [ACEPTADA, RECHAZADA, CANCELADA]
-              description: New offer status
+            status_id:
+              type: integer
+              enum: [2, 3, 4]
+              description: Status ID (2=ACEPTADA, 3=RECHAZADA, 4=CANCELADA)
     responses:
       200:
         description: Offer status updated successfully
@@ -143,8 +143,8 @@ def update_offer_status_endpoint(offer_id):
     if not offer:
         return jsonify({"error": "Oferta no encontrada"}), 404
     
-    new_status = data.get("status")
-    updated_offer = update_offer_status(offer_id, new_status)
+    new_status_id = data.get("status_id")
+    updated_offer = update_offer_status(offer_id, new_status_id)
     if not updated_offer:
         return jsonify({"error": "Error al actualizar oferta"}), 500
     

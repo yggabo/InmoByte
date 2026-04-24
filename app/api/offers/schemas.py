@@ -1,12 +1,5 @@
 from marshmallow import Schema, fields, validate
 
-class OfferStatus:
-    PENDIENTE = "PENDIENTE"
-    ACEPTADA = "ACEPTADA"
-    RECHAZADA = "RECHAZADA"
-    CANCELADA = "CANCELADA"
-
-
 class OfferTypeEnum:
     COMPRA = "COMPRA"
     ALQUILER = "ALQUILER"
@@ -20,13 +13,10 @@ class OfferSchema(Schema):
     property_id = fields.Integer(required=True)
     client_id = fields.Integer(required=True)
     agent_id = fields.Integer(allow_none=True)
+    status_id = fields.Integer(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 
 
 class OfferStatusUpdateSchema(Schema):
-    status = fields.String(required=True, validate=validate.OneOf([
-        OfferStatus.ACEPTADA,
-        OfferStatus.RECHAZADA,
-        OfferStatus.CANCELADA
-    ]))
+    status_id = fields.Integer(required=True, validate=validate.OneOf([2, 3, 4]))
