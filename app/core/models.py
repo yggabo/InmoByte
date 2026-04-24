@@ -4,3 +4,4 @@ def register_models():
     from app.api.roles.models import Roles
     from app.api.userProfile.models import UserProfile
     from app.api.preferences.models import Preference
+    from app.api.register_and_assign_ownership.models import Property
