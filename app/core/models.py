@@ -3,3 +3,4 @@ def register_models():
     from app.api.auth.models import Users, TokenBlocklist
     from app.api.roles.models import Roles
     from app.api.userProfile.models import UserProfile
+    from app.api.preferences.models import Preference
