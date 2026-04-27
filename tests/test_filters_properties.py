@@ -3,7 +3,8 @@ import json
 import os
 from app import create_app
 from app.core.extensions import db
-from app.api.register_and_assign_ownership.models import Property, PropertyStatus, Client
+from app.api.register_and_assign_ownership.models import Property, PropertyStatus
+from app.api.clients.models import Client
 
 class FiltersPropertiesTestCase(unittest.TestCase):
     def setUp(self):
