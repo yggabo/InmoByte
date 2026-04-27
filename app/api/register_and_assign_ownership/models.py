@@ -1,14 +1,11 @@
 from app.core.extensions import db
 
-class Agent(db.Model):
-    __tablename__ = "agents"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
 
 class PropertyStatus(db.Model):
     __tablename__ = "property_status"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), unique=True)
+
 
 class Property(db.Model):
     __tablename__ = "properties"

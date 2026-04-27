@@ -3,7 +3,8 @@ import json
 import os
 from app import create_app
 from app.core.extensions import db as _db
-from app.api.register_and_assign_ownership.models import Property, PropertyStatus, Agent
+from app.api.register_and_assign_ownership.models import Property, PropertyStatus
+from app.api.agents.models import Agent
 from app.api.clients.models import Client
 from app.api.auth.models import Users
 
@@ -35,22 +36,63 @@ def db(app):
         _db.create_all()
         
         from app.core.extensions import bcrypt
+        from app.api.userProfile.models import UserProfile
+        from app.api.roles.models import Roles
         
-        # Datos base necesarios para las pruebas
-        status_1 = PropertyStatus(id=1, name="DISPONIBLE")
-        status_2 = PropertyStatus(id=2, name="ASIGNADA")
-        client_obj = Client(id=1, name="Juan Vendedor", email="juan@example.com")
-        agent_obj = Agent(id=1, name="Agente 007")
+        # Verificar si el status ya existe
+        status_1 = PropertyStatus.query.filter(PropertyStatus.id == 1).first()
+        if not status_1:
+            status_1 = PropertyStatus(id=1, name="DISPONIBLE")
+            _db.session.add(status_1)
         
-        # Usuario para JWT
-        user = Users(
-            id=1,
-            username="testuser",
-            email="test@example.com",
-            password_hash=bcrypt.generate_password_hash("password123").decode('utf-8')
-        )
+        status_2 = PropertyStatus.query.filter(PropertyStatus.id == 2).first()
+        if not status_2:
+            status_2 = PropertyStatus(id=2, name="ASIGNADA")
+            _db.session.add(status_2)
         
-        _db.session.add_all([status_1, status_2, client_obj, agent_obj, user])
+        # Verificar si el cliente ya existe
+        client_obj = Client.query.filter(Client.id == 1).first()
+        if not client_obj:
+            client_obj = Client(id=1, name="Juan Vendedor", email="juan@example.com")
+            _db.session.add(client_obj)
+        
+        # Verificar si el rol ya existe (del seed)
+        rol = Roles.query.filter(Roles.name == 'agente').first()
+        if not rol:
+            rol = Roles(id=1, name='agente', status=True)
+            _db.session.add(rol)
+        
+        # Verificar si el usuario ya existe
+        user = Users.query.filter(Users.username == 'testuser').first()
+        if not user:
+            user = Users(
+                id=1,
+                username="testuser",
+                email="test@example.com",
+                password_hash=bcrypt.generate_password_hash("password123").decode('utf-8')
+            )
+            _db.session.add(user)
+        
+        # Verificar si el userProfile ya existe
+        userProfile = UserProfile.query.filter(UserProfile.userId == 1).first()
+        if not userProfile:
+            userProfile = UserProfile(
+                id=1,
+                name="Agente",
+                lastNames="007",
+                telefono="1234567890",
+                rolId=rol.id,
+                userId=1
+            )
+            _db.session.add(userProfile)
+        
+        # Verificar si el agente ya existe
+        from app.api.agents.models import Agent
+        agent_obj = Agent.query.filter(Agent.userProfileId == 1).first()
+        if not agent_obj:
+            agent_obj = Agent(id=1, userProfileId=1, status=True)
+            _db.session.add(agent_obj)
+        
         _db.session.commit()
         
         yield _db

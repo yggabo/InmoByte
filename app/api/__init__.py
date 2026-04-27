@@ -10,6 +10,7 @@ from app.api.register_and_assign_ownership import register_and_assign_ownership_
 from app.api.userProfile import userProfile_bp
 from app.api.preferences import preferences_bp
 from app.api.clients import clients_bp
+from app.api.agents import agents_bp
 
 api_bp.register_blueprint(main_bp)
 api_bp.register_blueprint(auth_bp)
@@ -19,3 +20,4 @@ api_bp.register_blueprint(register_and_assign_ownership_bp)
 api_bp.register_blueprint(userProfile_bp)
 api_bp.register_blueprint(preferences_bp)
 api_bp.register_blueprint(clients_bp)
+api_bp.register_blueprint(agents_bp)
