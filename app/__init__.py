@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from flasgger import Swagger
 
 from app.core.config import config_by_name
-from app.core.extensions import db, jwt, bcrypt
+from app.core.extensions import db, jwt, bcrypt, migrate
 from app.core.errors import register_error_handlers
 from app.core.jwt_handlers import register_jwt_handlers
 from app.core.cors_config import register_cors
@@ -30,6 +30,7 @@ def create_app(config_name=None):
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
+    migrate.init_app(app, db)
 
     app.config['SWAGGER'] = {
         'title': 'InmoByte API',
@@ -48,8 +49,12 @@ def create_app(config_name=None):
     register_blueprints(app)
     register_jwt_handlers(jwt)
     
+    migrations_dir = os.path.join(os.path.dirname(__file__), '..', 'migrations')
+    if not os.path.exists(migrations_dir):
+        with app.app_context():
+            db.create_all()
+    
     with app.app_context():
-        db.create_all()
         seed_roles()
     
     return app

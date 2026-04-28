@@ -52,7 +52,7 @@ def assign_agent(property_id, agent_id):
     if not property_obj:
         return None
         
-    if property_obj.status and property_obj.status.name != "DISPONIBLE":
+    if property_obj.status is None or property_obj.status.name != "DISPONIBLE":
         raise Exception("La propiedad no está disponible para asignación")
 
     property_obj.agent_id = agent_id

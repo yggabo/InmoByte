@@ -4,11 +4,13 @@ from .services import (
     update_property, delete_property, assign_agent
 )
 from .schemas import PropertySchema
+from flask_jwt_extended import jwt_required
 
 bp = Blueprint('property_api', __name__)
 schema = PropertySchema()
 
 @bp.route("/properties", methods=["POST"])
+@jwt_required()
 def create_property():
     data = request.get_json()
     errors = schema.validate(data)
@@ -21,12 +23,14 @@ def create_property():
         return jsonify({"error": str(e)}), 500
 
 @bp.route("/properties", methods=["GET"])
+@jwt_required()
 def get_properties():
     properties = get_all_properties()
     # many=True le indica al esquema que vamos a procesar una LISTA de propiedades
     return jsonify(schema.dump(properties, many=True)), 200
 
 @bp.route("/properties/<int:property_id>", methods=["GET"])
+@jwt_required()
 def get_property(property_id):
     prop = get_property_by_id(property_id)
     if not prop:
@@ -34,6 +38,7 @@ def get_property(property_id):
     return jsonify(schema.dump(prop)), 200
 
 @bp.route("/properties/<int:property_id>", methods=["PUT"])
+@jwt_required()
 def edit_property(property_id):
     data = request.get_json()
     # partial=True permite que no todos los campos sean obligatorios al editar
@@ -47,12 +52,14 @@ def edit_property(property_id):
     return jsonify(schema.dump(updated_prop)), 200
 
 @bp.route("/properties/<int:property_id>", methods=["DELETE"])
+@jwt_required()
 def remove_property(property_id):
     if delete_property(property_id):
         return jsonify({"message": "Propiedad eliminada correctamente"}), 200
     return jsonify({"error": "Propiedad no encontrada"}), 404
 
 @bp.route("/properties/<int:property_id>/assign-agent", methods=["PATCH"])
+@jwt_required()
 def assign(property_id):
     data = request.get_json()
     try:
