@@ -30,8 +30,7 @@ def create_preference(client_id):
           type: object
           required:
             - property_type_id
-            - price_min
-            - price_max
+            - price
             - location
             - bedrooms
             - bathrooms
@@ -42,12 +41,9 @@ def create_preference(client_id):
             property_type_id:
               type: integer
               description: Property type ID (FK to property_types table)
-            price_min:
+            price:
               type: number
-              description: Minimum price
-            price_max:
-              type: number
-              description: Maximum price
+              description: Preferred price
             location:
               type: string
               description: Preferred location
@@ -81,7 +77,7 @@ def create_preference(client_id):
     if not data:
         return error_response("No data provided", status_code=400)
 
-    required_fields = ['property_type_id', 'price_min', 'price_max', 'location',
+    required_fields = ['property_type_id', 'price', 'location',
                       'bedrooms', 'bathrooms', 'additional_features',
                       'living_space_min', 'living_space_max']
 
@@ -154,12 +150,9 @@ def update_preference(client_id):
             property_type_id:
               type: integer
               description: Property type ID
-            price_min:
+            price:
               type: number
-              description: Minimum price
-            price_max:
-              type: number
-              description: Maximum price
+              description: Preferred price
             location:
               type: string
               description: Preferred location

@@ -5,8 +5,7 @@ def register_property(data):
     new_property = Property(
         type=data.get("type"),
         location=data.get("location"),
-        price_min=data.get("price_min"),
-        price_max=data.get("price_max"),
+        price=data.get("price"),
         living_space_min=data.get("living_space_min"),
         living_space_max=data.get("living_space_max"),
         rooms=data.get("rooms"),

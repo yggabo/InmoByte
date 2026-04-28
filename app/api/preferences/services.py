@@ -13,8 +13,7 @@ class PreferenceService:
         preference = Preference(
             client_id=client_id,
             property_type_id=data.get('property_type_id'),
-            price_min=data.get('price_min'),
-            price_max=data.get('price_max'),
+            price=data.get('price'),
             location=data.get('location'),
             bedrooms=data.get('bedrooms'),
             bathrooms=data.get('bathrooms'),
@@ -41,10 +40,8 @@ class PreferenceService:
 
         if 'property_type_id' in data:
             preference.property_type_id = data['property_type_id']
-        if 'price_min' in data:
-            preference.price_min = data['price_min']
-        if 'price_max' in data:
-            preference.price_max = data['price_max']
+        if 'price' in data:
+            preference.price = data['price']
         if 'location' in data:
             preference.location = data['location']
         if 'bedrooms' in data:

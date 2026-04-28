@@ -44,7 +44,7 @@ def create_property():
         return error_response("No data provided", status_code=400)
     
     # Validar campos requeridos
-    required_fields = ['type', 'location', 'price_min', 'price_max', 'living_space_min', 'living_space_max', 'rooms', 'bathrooms', 'client_id', 'status_id']
+    required_fields = ['type', 'location', 'price', 'living_space_min', 'living_space_max', 'rooms', 'bathrooms', 'client_id', 'status_id']
     missing_fields = [field for field in required_fields if field not in data]
     if missing_fields:
         return error_response(f"Missing required fields: {', '.join(missing_fields)}", status_code=400)

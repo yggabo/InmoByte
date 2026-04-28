@@ -52,8 +52,7 @@ def sample_property(db):
         id=1,
         type="Casa",
         location="Valencia",
-        price_min=100000,
-        price_max=120000,
+        price=100000,
         living_space_min=80,
         living_space_max=100,
         rooms=3,
@@ -87,8 +86,7 @@ def test_create_property_success(client, db):
     payload = {
         "type": "Apartamento",
         "location": "Madrid",
-        "price_min": 150000,
-        "price_max": 180000,
+        "price": 150000,
         "living_space_min": 60,
         "living_space_max": 75,
         "rooms": 2,
@@ -103,11 +101,11 @@ def test_create_property_success(client, db):
 
 def test_update_property_partial(client, sample_property):
     """Verificar que la actualización parcial funciona."""
-    payload = {"price_max": 130000}
+    payload = {"price": 130000}
     res = client.put('/register_and_assign_ownership/properties/1', json=payload)
     assert res.status_code == 200
     data = json.loads(res.data)
-    assert float(data['price_max']) == 130000.0
+    assert float(data['price']) == 130000.0
     assert data['location'] == "Valencia"
 
 def test_delete_property(client, sample_property):

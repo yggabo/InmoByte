@@ -23,16 +23,16 @@ class FiltersPropertiesTestCase(unittest.TestCase):
             
             # Create sample properties
             properties = [
-                Property(id=1, type="Casa", location="Valencia", price_min=100000, price_max=120000, 
+                Property(id=1, type="Casa", location="Valencia", price=100000, 
                          living_space_min=80, living_space_max=100, rooms=3, bathrooms=2, 
                          client_id=1, status_id=1),
-                Property(id=2, type="Apartamento", location="Madrid", price_min=150000, price_max=180000, 
+                Property(id=2, type="Apartamento", location="Madrid", price=150000, 
                          living_space_min=60, living_space_max=75, rooms=2, bathrooms=1, 
                          client_id=1, status_id=1),
-                Property(id=3, type="Casa", location="Madrid", price_min=200000, price_max=250000, 
+                Property(id=3, type="Casa", location="Madrid", price=200000, 
                          living_space_min=120, living_space_max=150, rooms=4, bathrooms=3, 
                          client_id=1, status_id=2),
-                Property(id=4, type="Estudio", location="Barcelona", price_min=80000, price_max=90000, 
+                Property(id=4, type="Estudio", location="Barcelona", price=80000, 
                          living_space_min=30, living_space_max=40, rooms=1, bathrooms=1, 
                          client_id=1, status_id=1)
             ]
@@ -87,7 +87,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         res = self.client.get('/api/properties/?min_price=100000&max_price=160000')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
-        # Property 1 (100k) and Property 2 (150k) match the price_min criteria
+        # Property 1 (100k) and Property 2 (150k) are inside the requested price range
         self.assertEqual(len(data['data']), 2)
 
     def test_filter_by_rooms_and_bathrooms(self):
@@ -117,8 +117,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         payload = {
             "type": "Penthouse",
             "location": "Valencia",
-            "price_min": 300000,
-            "price_max": 350000,
+            "price": 300000,
             "living_space_min": 150,
             "living_space_max": 200,
             "rooms": 4,

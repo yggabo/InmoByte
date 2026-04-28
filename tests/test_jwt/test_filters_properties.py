@@ -47,8 +47,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         prop1 = Property(
             type='house',
             location='Madrid',
-            price_min=250000.0,
-            price_max=350000.0,
+            price=250000.0,
             living_space_min=100.0,
             living_space_max=150.0,
             rooms=3,
@@ -60,8 +59,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         prop2 = Property(
             type='apartment',
             location='Barcelona',
-            price_min=150000.0,
-            price_max=250000.0,
+            price=150000.0,
             living_space_min=70.0,
             living_space_max=90.0,
             rooms=2,
@@ -73,8 +71,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         prop3 = Property(
             type='land',
             location='Valencia',
-            price_min=40000.0,
-            price_max=60000.0,
+            price=50000.0,
             living_space_min=900.0,
             living_space_max=1100.0,
             rooms=None,
@@ -115,7 +112,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         res = self.client.get('/api/properties?min_price=200000&max_price=300000')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
-        # Debería devolver la casa (price_min=250000, price_max=350000) que se solapa con 200000-300000
+        # Debería devolver la casa con precio 250000 dentro del rango 200000-300000
         self.assertEqual(len(data['data']), 1)
         self.assertEqual(data['data'][0]['type'], 'house')
 
@@ -154,8 +151,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         new_property_data = {
             'type': 'house',
             'location': 'Sevilla',
-            'price_min': 350000.0,
-            'price_max': 450000.0,
+            'price': 350000.0,
             'living_space_min': 140.0,
             'living_space_max': 160.0,
             'rooms': 4,
@@ -178,8 +174,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         new_property_data = {
             'type': 'house',
             'location': 'Test',
-            'price_min': 80000.0,
-            'price_max': 120000.0,
+            'price': 80000.0,
             'living_space_min': 100.0,
             'living_space_max': 120.0,
             'rooms': 3,

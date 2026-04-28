@@ -22,8 +22,7 @@ class Property(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(50))
     location = db.Column(db.String(255))
-    price_min = db.Column(db.Numeric(12, 2))
-    price_max = db.Column(db.Numeric(12, 2))
+    price = db.Column(db.Numeric(12, 2))
     living_space_min = db.Column(db.Numeric(10, 2))
     living_space_max = db.Column(db.Numeric(10, 2))
     rooms = db.Column(db.Integer)
@@ -43,8 +42,7 @@ class Property(db.Model):
             'id': self.id,
             'type': self.type,
             'location': self.location,
-            'price_min': float(self.price_min) if self.price_min else None,
-            'price_max': float(self.price_max) if self.price_max else None,
+            'price': float(self.price) if self.price else None,
             'living_space_min': float(self.living_space_min) if self.living_space_min else None,
             'living_space_max': float(self.living_space_max) if self.living_space_max else None,
             'rooms': self.rooms,

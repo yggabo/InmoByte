@@ -24,16 +24,14 @@ class PropertyService:
         if filters.get('min_price'):
             try:
                 min_price = float(filters['min_price'])
-                # Filtrar propiedades donde price_min está dentro del rango solicitado
-                query = query.filter(Property.price_min >= min_price)
+                query = query.filter(Property.price >= min_price)
             except (ValueError, TypeError):
                 pass
             
         if filters.get('max_price'):
             try:
                 max_price = float(filters['max_price'])
-                # Filtrar propiedades donde price_min está dentro del rango solicitado
-                query = query.filter(Property.price_min <= max_price)
+                query = query.filter(Property.price <= max_price)
             except (ValueError, TypeError):
                 pass
             

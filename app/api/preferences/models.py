@@ -7,8 +7,7 @@ class Preference(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, nullable=False)
     property_type_id = db.Column(db.Integer, nullable=True)
-    price_min = db.Column(db.Float, nullable=True)
-    price_max = db.Column(db.Float, nullable=True)
+    price = db.Column(db.Float, nullable=True)
     location = db.Column(db.String(100), nullable=True)
     bedrooms = db.Column(db.Integer, nullable=True)
     bathrooms = db.Column(db.Integer, nullable=True)
@@ -23,8 +22,7 @@ class Preference(db.Model):
             "id": self.id,
             "client_id": self.client_id,
             "property_type_id": self.property_type_id,
-            "price_min": self.price_min,
-            "price_max": self.price_max,
+            "price": self.price,
             "location": self.location,
             "bedrooms": self.bedrooms,
             "bathrooms": self.bathrooms,

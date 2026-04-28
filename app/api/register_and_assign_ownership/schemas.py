@@ -5,8 +5,7 @@ class PropertySchema(Schema):
     id = fields.Integer(dump_only=True)
     type = fields.String(required=True, validate=validate.Length(min=3))
     location = fields.String(required=True)
-    price_min = fields.Decimal(required=True, validate=validate.Range(min=0))
-    price_max = fields.Decimal(required=True, validate=validate.Range(min=0))
+    price = fields.Decimal(required=True, validate=validate.Range(min=0))
     living_space_min = fields.Decimal(required=True)
     living_space_max = fields.Decimal(required=True)
     rooms = fields.Integer(required=True)
@@ -18,12 +17,7 @@ class PropertySchema(Schema):
 
     @validates_schema
     def validate_ranges(self, data, **kwargs):
-        # Solo validamos si ambos campos están presentes (útil para actualizaciones parciales)
-        p_min = data.get('price_min')
-        p_max = data.get('price_max')
-        if p_min and p_max and p_min > p_max:
-            raise ValidationError("El precio mínimo no puede ser mayor al máximo", "price_min")
-        
+        # Validamos solo la superficie porque el precio ahora es un valor único
         s_min = data.get('living_space_min')
         s_max = data.get('living_space_max')
         if s_min and s_max and s_min > s_max:
