@@ -26,6 +26,78 @@ def check_scheduling_conflict(agent_id, appointment_date, start_time, end_time, 
 
     return query.first()
 
+def get_appointments(filters=None):
+    """
+    Obtiene el listado de citas con filtros opcionales.
+    """
+    query = Appointment.query.filter(Appointment.is_active == True)
+
+    if filters:
+        if filters.get('date'):
+            try:
+                date_val = datetime.strptime(filters['date'], '%Y-%m-%d').date()
+                query = query.filter(Appointment.appointment_date == date_val)
+            except (ValueError, TypeError):
+                # Si la fecha es inválida, podríamos ignorar el filtro o lanzar error.
+                # Por ahora lo ignoramos para no romper el listado.
+                pass
+        if filters.get('client_id'):
+            query = query.filter(Appointment.client_id == filters['client_id'])
+        if filters.get('agent_id'):
+            query = query.filter(Appointment.agent_id == filters['agent_id'])
+        if filters.get('property_id'):
+            query = query.filter(Appointment.property_id == filters['property_id'])
+
+    return query.order_by(Appointment.appointment_date.asc(), Appointment.start_time.asc()).all()
+
+def update_appointment(appointment_id, data):
+    """
+    Actualiza una cita existente. Valida conflictos si cambia el horario.
+    """
+    appointment = db.session.get(Appointment, appointment_id)
+    if not appointment or not appointment.is_active:
+        raise APIException("Cita no encontrada.", status_code=404)
+
+    # Si se actualiza el horario, validar conflictos
+    new_date = data.get('appointment_date', appointment.appointment_date)
+    new_start = data.get('start_time', appointment.start_time)
+    new_end = data.get('end_time', appointment.end_time)
+    new_agent = data.get('agent_id', appointment.agent_id)
+
+    if any(k in data for k in ['appointment_date', 'start_time', 'end_time', 'agent_id']):
+        conflict = check_scheduling_conflict(
+            agent_id=new_agent,
+            appointment_date=new_date,
+            start_time=new_start,
+            end_time=new_end,
+            exclude_id=appointment_id
+        )
+        if conflict:
+            raise APIException(
+                f"Conflicto de horario: El agente ya tiene una cita ({conflict.start_time} - {conflict.end_time}).",
+                status_code=409
+            )
+
+    # Actualizar campos
+    for key, value in data.items():
+        if hasattr(appointment, key) and value is not None:
+            setattr(appointment, key, value)
+
+    db.session.commit()
+    return appointment
+
+def delete_appointment(appointment_id):
+    """
+    Realiza un borrado lógico de la cita.
+    """
+    appointment = db.session.get(Appointment, appointment_id)
+    if not appointment or not appointment.is_active:
+        raise APIException("Cita no encontrada o ya eliminada.", status_code=404)
+
+    appointment.is_active = False
+    db.session.commit()
+    return True
+
 def create_appointment(data):
     # 1. Validar existencia de cliente
     client = db.session.get(Client, data.get('client_id'))
