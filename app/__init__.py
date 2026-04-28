@@ -12,6 +12,7 @@ from app.core.blueprints import register_blueprints
 from app.core.models import register_models
 from app.core.jwt_config import JWTConfig
 from app.api.roles.seeds import seed_roles
+from app.api.propertyStatus.seeds import seed_property_statuses
 
 load_dotenv()
 
@@ -49,12 +50,11 @@ def create_app(config_name=None):
     register_blueprints(app)
     register_jwt_handlers(jwt)
     
-    migrations_dir = os.path.join(os.path.dirname(__file__), '..', 'migrations')
-    if not os.path.exists(migrations_dir):
-        with app.app_context():
-            db.create_all()
-    
     with app.app_context():
-        seed_roles()
+        try:
+            seed_roles()
+            seed_property_statuses()
+        except Exception as e:
+            app.logger.warning(f"No se pudieron insertar los datos iniciales: {e}")
     
     return app

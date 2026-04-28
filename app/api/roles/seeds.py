@@ -1,7 +1,13 @@
 from app.core.extensions import db
 from app.api.roles.models import Roles
+from sqlalchemy import inspect
+
 
 def seed_roles():
+    inspector = inspect(db.engine)
+    if not inspector.has_table('roles'):
+        return
+    
     existing = Roles.query.filter(
         Roles.name.in_(['admin', 'agente'])
     ).count()

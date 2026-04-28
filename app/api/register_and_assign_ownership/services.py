@@ -1,5 +1,6 @@
 from app.core.extensions import db
 from .models import Property
+from app.api.propertyStatus.models import PropertyStatus
 
 def register_property(data):
     new_property = Property(
@@ -51,11 +52,15 @@ def assign_agent(property_id, agent_id):
     property_obj = db.session.get(Property, property_id)
     if not property_obj:
         return None
-        
-    if property_obj.status is None or property_obj.status.name != "DISPONIBLE":
+    
+    # Verificar que la propiedad esté en venta o en alquiler
+    if property_obj.status is None or property_obj.status.name not in ["en venta", "en alquiler"]:
         raise Exception("La propiedad no está disponible para asignación")
-
+    
     property_obj.agent_id = agent_id
-    property_obj.status_id = 2  # ASIGNADA
+    # Cambiar estado a "reservado"
+    reserved_status = PropertyStatus.query.filter_by(name="reservado").first()
+    if reserved_status:
+        property_obj.status_id = reserved_status.id
     db.session.commit()
     return property_obj
