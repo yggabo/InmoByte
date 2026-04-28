@@ -12,7 +12,7 @@ from app.core.blueprints import register_blueprints
 from app.core.models import register_models
 from app.core.jwt_config import JWTConfig
 from app.api.roles.seeds import seed_roles
-from app.api.hu_006_appointments_scheduling.seeds import seed_appointment_status
+from app.api.appointments_scheduling.seeds import seed_appointment_status
 
 load_dotenv()
 

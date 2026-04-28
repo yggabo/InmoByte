@@ -1,1 +1,1 @@
-# hu_006_appointments_scheduling module
+from .routes import bp as appointments_scheduling_bp

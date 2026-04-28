@@ -1,5 +1,5 @@
 from app.core.extensions import db
-from app.api.hu_006_appointments_scheduling.models import AppointmentStatus
+from app.api.appointments_scheduling.models import AppointmentStatus
 
 def seed_appointment_status():
     statuses_data = [

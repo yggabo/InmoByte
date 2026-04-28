@@ -13,16 +13,6 @@ class AppointmentStatus(db.Model):
     created_at = db.Column(db.DateTime, default=func.now(), nullable=False)
     updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now(), nullable=False)
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "description": self.description,
-            "status": self.status,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None
-        }
-
     def __repr__(self):
         return f'<AppointmentStatus {self.name}>'
 
@@ -51,26 +41,6 @@ class Appointment(db.Model):
 
     created_at = db.Column(db.DateTime, default=func.now(), nullable=False)
     updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now(), nullable=False)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "appointment_date": self.appointment_date.isoformat() if self.appointment_date else None,
-            "start_time": self.start_time.strftime('%H:%M:%S') if self.start_time else None,
-            "end_time": self.end_time.strftime('%H:%M:%S') if self.end_time else None,
-            "notes": self.notes,
-            "is_active": self.is_active,
-            "client_id": self.client_id,
-            "property_id": self.property_id,
-            "agent_id": self.agent_id,
-            "status_id": self.status_id,
-            "client": self.client.name if self.client else None,
-            "property": self.property.location if self.property else None,
-            "agent_id_info": self.agent_id if self.agent else None,
-            "status_name": self.status.name if self.status else None,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None
-        }
 
     def __repr__(self):
         return f'<Appointment {self.id} - {self.appointment_date}>'
