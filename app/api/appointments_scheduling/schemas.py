@@ -11,7 +11,7 @@ class AppointmentCreateSchema(Schema):
     end_time = fields.Time(required=True)
     client_id = fields.Int(required=True)
     property_id = fields.Int(required=True)
-    agent_id = fields.Int(required=True)
+    agent_id = fields.Int(required=False)
     status_id = fields.Int(required=False)  # Usually starts with a default status like PROGRAMADA
     notes = fields.Str(validate=validate.Length(max=500))
     is_active = fields.Bool(dump_only=True)

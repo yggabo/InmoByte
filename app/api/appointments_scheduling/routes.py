@@ -41,6 +41,8 @@ def create_appointment():
     except ValueError as e:
         return error_response(str(e), status_code=400)
     except Exception as e:
+        if hasattr(e, 'status_code'):
+            return error_response(e.message if hasattr(e, 'message') else str(e), status_code=e.status_code)
         return error_response(f"Error al crear la cita: {str(e)}", status_code=500)
 
 @bp.route('/<int:appointment_id>', methods=['PUT', 'PATCH'])
@@ -60,6 +62,8 @@ def update_appointment(appointment_id):
     except ValueError as e:
         return error_response(str(e), status_code=400)
     except Exception as e:
+        if hasattr(e, 'status_code'):
+            return error_response(e.message if hasattr(e, 'message') else str(e), status_code=e.status_code)
         return error_response(f"Error al actualizar la cita: {str(e)}", status_code=500)
 
 @bp.route('/<int:appointment_id>', methods=['DELETE'])
