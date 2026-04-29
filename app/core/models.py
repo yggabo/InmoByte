@@ -10,3 +10,4 @@ def register_models():
     from app.api.propertyStatus.models import PropertyStatus
     from app.api.statusOffers.models import OfferStatus
     from app.api.offers.models import Offer
+    from app.api.appointments_scheduling.models import AppointmentStatus, Appointment

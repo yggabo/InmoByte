@@ -1,5 +1,6 @@
 from flask import jsonify
 from werkzeug.exceptions import HTTPException
+from app.core.exceptions import APIException
 
 def register_error_handlers(app):
     
@@ -72,3 +73,11 @@ def register_error_handlers(app):
             "status_code": 422,
             "error": "Unprocessable Entity"
         }), 422
+
+    @app.errorhandler(APIException)
+    def handle_api_exception(e):
+        return jsonify({
+            "message": e.message,
+            "status_code": e.status_code,
+            "error": "API Error"
+        }), e.status_code

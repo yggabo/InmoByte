@@ -5,6 +5,8 @@ from .services import (
 )
 from .schemas import PropertySchema
 from flask_jwt_extended import jwt_required
+from app.api.appointments_scheduling import services as appointment_services
+from app.api.appointments_scheduling.schemas import appointment_create_schema
 
 bp = Blueprint('property_api', __name__)
 schema = PropertySchema()
@@ -69,3 +71,10 @@ def assign(property_id):
         return jsonify(schema.dump(updated_prop)), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 409
+
+@bp.route("/properties/<int:property_id>/appointments", methods=["GET"])
+@jwt_required()
+def get_property_appointments(property_id):
+    filters = {'property_id': property_id}
+    appointments = appointment_services.get_appointments(filters)
+    return jsonify(appointment_create_schema.dump(appointments, many=True)), 200

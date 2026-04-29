@@ -14,6 +14,7 @@ from app.api.clients import clients_bp
 from app.api.agents import agents_bp
 from app.api.offers import offers_bp
 from app.api.statusOffers import status_offers_bp
+from app.api.appointments_scheduling import appointments_scheduling_bp
 
 api_bp.register_blueprint(main_bp)
 api_bp.register_blueprint(auth_bp)
@@ -27,3 +28,4 @@ api_bp.register_blueprint(clients_bp)
 api_bp.register_blueprint(agents_bp)
 api_bp.register_blueprint(offers_bp)
 api_bp.register_blueprint(status_offers_bp)
+api_bp.register_blueprint(appointments_scheduling_bp, url_prefix='/appointments')

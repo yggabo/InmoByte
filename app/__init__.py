@@ -14,6 +14,7 @@ from app.core.jwt_config import JWTConfig
 from app.api.roles.seeds import seed_roles
 from app.api.propertyStatus.seeds import seed_property_statuses
 from app.api.statusOffers.seeds import seed_offer_status
+from app.api.appointments_scheduling.seeds import seed_appointment_status
 
 load_dotenv()
 
@@ -56,6 +57,7 @@ def create_app(config_name=None):
             seed_roles()
             seed_property_statuses()
             seed_offer_status()
+            seed_appointment_status()
         except Exception as e:
             app.logger.warning(f"No se pudieron insertar los datos iniciales: {e}")
     
