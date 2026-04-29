@@ -89,7 +89,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
 
     def test_get_properties_no_filters(self):
         """Obtener todas las propiedades sin filtros"""
-        res = self.client.get('/api/properties')
+        res = self.client.get('/api/filter-properties')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(len(data['data']), 3)
@@ -97,7 +97,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
 
     def test_get_properties_with_type_filter(self):
         """Filtrar propiedades por tipo"""
-        res = self.client.get('/api/properties?type=house')
+        res = self.client.get('/api/filter-properties?type=house')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(len(data['data']), 1)
@@ -105,7 +105,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
 
     def test_get_properties_with_location_filter(self):
         """Filtrar propiedades por ubicación"""
-        res = self.client.get('/api/properties?location=Madrid')
+        res = self.client.get('/api/filter-properties?location=Madrid')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(len(data['data']), 1)
@@ -113,7 +113,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
 
     def test_get_properties_with_price_filters(self):
         """Filtrar propiedades por rango de precio"""
-        res = self.client.get('/api/properties?min_price=200000&max_price=300000')
+        res = self.client.get('/api/filter-properties?min_price=200000&max_price=300000')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         # Debería devolver la casa (price_min=250000, price_max=350000) que se solapa con 200000-300000
@@ -122,7 +122,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
 
     def test_get_properties_with_multiple_filters(self):
         """Filtrar con múltiples criterios"""
-        res = self.client.get('/api/properties?type=apartment&location=Barcelona&min_price=140000')
+        res = self.client.get('/api/filter-properties?type=apartment&location=Barcelona&min_price=140000')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(len(data['data']), 1)
@@ -135,14 +135,14 @@ class FiltersPropertiesTestCase(unittest.TestCase):
             prop = Property.query.filter_by(type='house').first()
             prop_id = prop.id
         
-        res = self.client.get(f'/api/properties/{prop_id}')
+        res = self.client.get(f'/api/filter-properties/{prop_id}')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(data['data']['type'], 'house')
 
     def test_get_property_by_id_not_found(self):
         """Obtener propiedad por ID inexistente"""
-        res = self.client.get('/api/properties/999')
+        res = self.client.get('/api/filter-properties/999')
         self.assertEqual(res.status_code, 404)
         data = json.loads(res.data)
         self.assertIn('Property not found', data['message'])
@@ -166,7 +166,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
             'status_id': 1
         }
         
-        res = self.client.post('/api/properties', 
+        res = self.client.post('/api/filter-properties', 
                              json=new_property_data, 
                              headers=headers)
         self.assertEqual(res.status_code, 201)
@@ -190,7 +190,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
             'status_id': 1
         }
         
-        res = self.client.post('/api/properties', json=new_property_data)
+        res = self.client.post('/api/filter-properties', json=new_property_data)
         self.assertEqual(res.status_code, 401)
 
     def test_create_property_invalid_data(self):
@@ -201,7 +201,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         # Datos faltantes - type es requerido
         invalid_data = {'location': 'Casa inválida'}
         
-        res = self.client.post('/api/properties', 
+        res = self.client.post('/api/filter-properties', 
                              json=invalid_data, 
                              headers=headers)
         self.assertEqual(res.status_code, 400)

@@ -135,7 +135,7 @@ def sample_property(db):
 
 def test_get_all_properties(client, sample_property, auth_headers):
     """Verificar que el listado de propiedades funciona."""
-    res = client.get('/register_and_assign_ownership/properties', headers=auth_headers)
+    res = client.get('/api/register-and-assign-ownership/properties', headers=auth_headers)
     assert res.status_code == 200
     data = json.loads(res.data)
     assert isinstance(data, list)
@@ -143,7 +143,7 @@ def test_get_all_properties(client, sample_property, auth_headers):
 
 def test_get_property_detail(client, sample_property, auth_headers):
     """Verificar que se obtiene el detalle de una propiedad específica."""
-    res = client.get('/register_and_assign_ownership/properties/1', headers=auth_headers)
+    res = client.get('/api/register-and-assign-ownership/properties/1', headers=auth_headers)
     assert res.status_code == 200
     data = json.loads(res.data)
     assert data['location'] == "Valencia"
@@ -162,7 +162,7 @@ def test_create_property_success(client, db, auth_headers):
         "client_id": 1,
         "status_id": 1
     }
-    res = client.post('/register_and_assign_ownership/properties', json=payload, headers=auth_headers)
+    res = client.post('/api/register-and-assign-ownership/properties', json=payload, headers=auth_headers)
     assert res.status_code == 201
     data = json.loads(res.data)
     assert data['location'] == "Madrid"
@@ -170,7 +170,7 @@ def test_create_property_success(client, db, auth_headers):
 def test_update_property_partial(client, sample_property, auth_headers):
     """Verificar que la actualización parcial funciona."""
     payload = {"price_max": 130000}
-    res = client.put('/register_and_assign_ownership/properties/1', json=payload, headers=auth_headers)
+    res = client.put('/api/register-and-assign-ownership/properties/1', json=payload, headers=auth_headers)
     assert res.status_code == 200
     data = json.loads(res.data)
     assert float(data['price_max']) == 130000.0
@@ -178,16 +178,16 @@ def test_update_property_partial(client, sample_property, auth_headers):
 
 def test_delete_property(client, sample_property, auth_headers):
     """Verificar que se puede eliminar una propiedad."""
-    res = client.delete('/register_and_assign_ownership/properties/1', headers=auth_headers)
+    res = client.delete('/api/register-and-assign-ownership/properties/1', headers=auth_headers)
     assert res.status_code == 200
     
-    res_get = client.get('/register_and_assign_ownership/properties/1', headers=auth_headers)
+    res_get = client.get('/api/register-and-assign-ownership/properties/1', headers=auth_headers)
     assert res_get.status_code == 404
 
 def test_assign_agent_success(client, sample_property, auth_headers):
     """Verificar la asignación de un agente."""
     payload = {"agent_id": 1}
-    res = client.patch('/register_and_assign_ownership/properties/1/assign-agent', json=payload, headers=auth_headers)
+    res = client.patch('/api/register-and-assign-ownership/properties/1/assign-agent', json=payload, headers=auth_headers)
     assert res.status_code == 200
     data = json.loads(res.data)
     assert data['agent_id'] == 1

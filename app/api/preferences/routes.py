@@ -3,12 +3,13 @@ from app.api.preferences.services import PreferenceService
 from app.core.utils import success_response, error_response
 from app.core.exceptions import APIException
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.api.preferences import preferences_bp as bp
+
+bp = Blueprint('preferences', __name__)
 
 
-@bp.route('/clients/<int:client_id>/preferences', methods=['POST'])
+@bp.route('/', methods=['POST'])
 @jwt_required()
-def create_preference(client_id):
+def create_preference():
     """
     Create preferences for a client
     ---
@@ -17,18 +18,13 @@ def create_preference(client_id):
     summary: Create client preferences
     description: Creates preferences for a specific client
     parameters:
-      - name: client_id
-        in: path
-        required: true
-        schema:
-          type: integer
-        description: Client ID
       - name: body
         in: body
         required: true
         schema:
           type: object
           required:
+            - client_id
             - property_type_id
             - price_min
             - price_max
@@ -39,6 +35,9 @@ def create_preference(client_id):
             - living_space_min
             - living_space_max
           properties:
+            client_id:
+              type: integer
+              description: Client ID
             property_type_id:
               type: integer
               description: Property type ID (FK to property_types table)
@@ -81,13 +80,15 @@ def create_preference(client_id):
     if not data:
         return error_response("No data provided", status_code=400)
 
-    required_fields = ['property_type_id', 'price_min', 'price_max', 'location',
+    required_fields = ['client_id', 'property_type_id', 'price_min', 'price_max', 'location',
                       'bedrooms', 'bathrooms', 'additional_features',
                       'living_space_min', 'living_space_max']
 
     missing_fields = [field for field in required_fields if field not in data]
     if missing_fields:
         return error_response(f"Missing fields: {', '.join(missing_fields)}", status_code=400)
+
+    client_id = data.get('client_id')
 
     try:
         preference = PreferenceService.create_preference(client_id, data)
@@ -96,7 +97,7 @@ def create_preference(client_id):
         return error_response(e.message, status_code=e.status_code)
 
 
-@bp.route('/clients/<int:client_id>/preferences', methods=['GET'])
+@bp.route('/<int:client_id>', methods=['GET'])
 @jwt_required()
 def get_preference(client_id):
     """
@@ -128,7 +129,7 @@ def get_preference(client_id):
         return error_response(e.message, status_code=e.status_code)
 
 
-@bp.route('/clients/<int:client_id>/preferences', methods=['PUT'])
+@bp.route('/<int:client_id>', methods=['PUT'])
 @jwt_required()
 def update_preference(client_id):
     """

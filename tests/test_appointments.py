@@ -140,7 +140,7 @@ def test_create_appointment_success(client, db, auth_headers):
         "property_id": 1,
         "notes": "Interesado en la terraza"
     }
-    res = client.post('/appointments', json=payload, headers=auth_headers)
+    res = client.post('/api/appointments', json=payload, headers=auth_headers)
     assert res.status_code == 201
     data = json.loads(res.data)
     assert data['data']['client_name'] == "Juan Perez"
@@ -155,13 +155,13 @@ def test_create_appointment_conflict(client, sample_appointment, auth_headers):
         "property_id": 1,
         "agent_id": 1
     }
-    res = client.post('/appointments', json=payload, headers=auth_headers)
+    res = client.post('/api/appointments', json=payload, headers=auth_headers)
     assert res.status_code == 409
     data = json.loads(res.data)
     assert "cita programada" in data['message']
 
 def test_list_appointments(client, sample_appointment, auth_headers):
-    res = client.get('/appointments', headers=auth_headers)
+    res = client.get('/api/appointments', headers=auth_headers)
     assert res.status_code == 200
     data = json.loads(res.data)
     assert len(data['data']) >= 1
@@ -169,22 +169,22 @@ def test_list_appointments(client, sample_appointment, auth_headers):
 def test_update_appointment_status(client, sample_appointment, auth_headers):
     status_realizada = AppointmentStatus.query.filter_by(name='REALIZADA').first()
     payload = {"status_id": status_realizada.id}
-    res = client.put(f'/appointments/{sample_appointment.id}', json=payload, headers=auth_headers)
+    res = client.put(f'/api/appointments/{sample_appointment.id}', json=payload, headers=auth_headers)
     assert res.status_code == 200
     data = json.loads(res.data)
     assert data['data']['status_name'] == "REALIZADA"
 
 def test_delete_appointment(client, sample_appointment, auth_headers):
-    res = client.delete(f'/appointments/{sample_appointment.id}', headers=auth_headers)
+    res = client.delete(f'/api/appointments/{sample_appointment.id}', headers=auth_headers)
     assert res.status_code == 200
     
     # Verificar que ya no aparece en el listado
-    res_list = client.get('/appointments', headers=auth_headers)
+    res_list = client.get('/api/appointments', headers=auth_headers)
     data = json.loads(res_list.data)
     assert all(a['id'] != sample_appointment.id for a in data['data'])
 
 def test_get_property_appointments(client, sample_appointment, auth_headers):
-    res = client.get('/register_and_assign_ownership/properties/1/appointments', headers=auth_headers)
+    res = client.get('/api/register-and-assign-ownership/properties/1/appointments', headers=auth_headers)
     assert res.status_code == 200
     data = json.loads(res.data)
     assert len(data) >= 1

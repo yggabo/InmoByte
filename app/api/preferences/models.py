@@ -5,7 +5,7 @@ from sqlalchemy import func
 
 class Preference(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    client_id = db.Column(db.Integer, nullable=False)
+    client_id = db.Column(db.Integer, db.ForeignKey("clients.id"), nullable=False)
     property_type_id = db.Column(db.Integer, nullable=True)
     price_min = db.Column(db.Float, nullable=True)
     price_max = db.Column(db.Float, nullable=True)
@@ -17,6 +17,7 @@ class Preference(db.Model):
     living_space_max = db.Column(db.Float, nullable=True)
     created_at = db.Column(db.DateTime, default=func.now(), nullable=False)
     updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    client = db.relationship("Client", backref="preference")
 
     def to_dict(self):
         return {

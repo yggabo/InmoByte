@@ -36,7 +36,7 @@ class PropertyStatusTestCase(unittest.TestCase):
         return {'Authorization': f'Bearer {self.access_token}'}
 
     def test_create_property_status(self):
-        res = self.client.post('/api/propertyStatus',
+        res = self.client.post('/api/property-status',
                               json={'name': 'en venta'},
                               headers=self._auth_headers())
         self.assertEqual(res.status_code, 201)
@@ -48,7 +48,7 @@ class PropertyStatusTestCase(unittest.TestCase):
         with self.app.app_context():
             db.session.add(PropertyStatus(name="test status", status=True))
             db.session.commit()
-        res = self.client.get('/api/propertyStatus', headers=self._auth_headers())
+        res = self.client.get('/api/property-status', headers=self._auth_headers())
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertGreater(len(data['data']), 0)
@@ -59,7 +59,7 @@ class PropertyStatusTestCase(unittest.TestCase):
             db.session.add(ps)
             db.session.commit()
             ps_id = ps.id
-        res = self.client.get(f'/api/propertyStatus/{ps_id}', headers=self._auth_headers())
+        res = self.client.get(f'/api/property-status/{ps_id}', headers=self._auth_headers())
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(data['data']['name'], 'test status 2')
@@ -70,7 +70,7 @@ class PropertyStatusTestCase(unittest.TestCase):
             db.session.add(ps)
             db.session.commit()
             ps_id = ps.id
-        res = self.client.put(f'/api/propertyStatus/{ps_id}',
+        res = self.client.put(f'/api/property-status/{ps_id}',
                              json={'name': 'new name'},
                              headers=self._auth_headers())
         self.assertEqual(res.status_code, 200)
@@ -83,7 +83,7 @@ class PropertyStatusTestCase(unittest.TestCase):
             db.session.add(ps)
             db.session.commit()
             ps_id = ps.id
-        res = self.client.delete(f'/api/propertyStatus/{ps_id}', headers=self._auth_headers())
+        res = self.client.delete(f'/api/property-status/{ps_id}', headers=self._auth_headers())
         self.assertEqual(res.status_code, 200)
         # Verificar que se hizo soft delete
         with self.app.app_context():
@@ -91,10 +91,10 @@ class PropertyStatusTestCase(unittest.TestCase):
             self.assertFalse(ps.status)
 
     def test_create_duplicate_property_status(self):
-        self.client.post('/api/propertyStatus',
+        self.client.post('/api/property-status',
                         json={'name': 'duplicate'},
                         headers=self._auth_headers())
-        res = self.client.post('/api/propertyStatus',
+        res = self.client.post('/api/property-status',
                               json={'name': 'duplicate'},
                               headers=self._auth_headers())
         self.assertEqual(res.status_code, 400)

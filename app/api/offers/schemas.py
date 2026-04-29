@@ -3,7 +3,7 @@ from marshmallow import Schema, fields, validate
 class OfferSchema(Schema):
     id = fields.Integer(dump_only=True)
     offered_price = fields.Decimal(required=True, validate=validate.Range(min=0))
-    status = fields.String(dump_only=True)
+    status = fields.Function(lambda obj: obj.status.name if obj.status else None)
     property_id = fields.Integer(required=True)
     client_id = fields.Integer(required=True)
     status_id = fields.Integer(dump_only=True)

@@ -44,7 +44,7 @@ class UserProfileTestCase(unittest.TestCase):
                 pass
 
     def test_create_user_profile(self):
-        res = self.client.post('/api/userProfile', json={
+        res = self.client.post('/api/user-profile', json={
             'name': 'John',
             'lastNames': 'Doe Smith',
             'telefono': '+1234567890',
@@ -57,13 +57,13 @@ class UserProfileTestCase(unittest.TestCase):
         self.assertEqual(data['data']['name'], 'John')
 
     def test_create_user_profile_duplicate(self):
-        self.client.post('/api/userProfile', json={
+        self.client.post('/api/user-profile', json={
             'name': 'John',
             'lastNames': 'Doe',
             'rolId': 1,
             'userId': self.user_id
         }, headers=self._auth_header())
-        res = self.client.post('/api/userProfile', json={
+        res = self.client.post('/api/user-profile', json={
             'name': 'Jane',
             'lastNames': 'Doe',
             'rolId': 1,
@@ -72,64 +72,64 @@ class UserProfileTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
 
     def test_create_user_profile_missing_fields(self):
-        res = self.client.post('/api/userProfile', json={
+        res = self.client.post('/api/user-profile', json={
             'name': 'John'
         }, headers=self._auth_header())
         self.assertEqual(res.status_code, 400)
 
     def test_get_all_user_profiles(self):
-        self.client.post('/api/userProfile', json={
+        self.client.post('/api/user-profile', json={
             'name': 'John',
             'lastNames': 'Doe',
             'rolId': 1,
             'userId': self.user_id
         }, headers=self._auth_header())
-        res = self.client.get('/api/userProfile', headers=self._auth_header())
+        res = self.client.get('/api/user-profile', headers=self._auth_header())
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertIn('data', data)
         self.assertIsInstance(data['data'], list)
 
     def test_get_user_profile_by_id(self):
-        self.client.post('/api/userProfile', json={
+        self.client.post('/api/user-profile', json={
             'name': 'John',
             'lastNames': 'Doe',
             'rolId': 1,
             'userId': self.user_id
         }, headers=self._auth_header())
-        res = self.client.get('/api/userProfile/1', headers=self._auth_header())
+        res = self.client.get('/api/user-profile/1', headers=self._auth_header())
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(data['data']['name'], 'John')
 
     def test_get_user_profile_by_id_not_found(self):
-        res = self.client.get('/api/userProfile/999', headers=self._auth_header())
+        res = self.client.get('/api/user-profile/999', headers=self._auth_header())
         self.assertEqual(res.status_code, 404)
 
     def test_get_user_profile_by_user_id(self):
-        self.client.post('/api/userProfile', json={
+        self.client.post('/api/user-profile', json={
             'name': 'John',
             'lastNames': 'Doe',
             'rolId': 1,
             'userId': self.user_id
         }, headers=self._auth_header())
-        res = self.client.get(f'/api/userProfile/user/{self.user_id}', headers=self._auth_header())
+        res = self.client.get(f'/api/user-profile/user/{self.user_id}', headers=self._auth_header())
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(data['data']['name'], 'John')
 
     def test_get_user_profile_by_user_id_not_found(self):
-        res = self.client.get('/api/userProfile/user/999', headers=self._auth_header())
+        res = self.client.get('/api/user-profile/user/999', headers=self._auth_header())
         self.assertEqual(res.status_code, 404)
 
     def test_update_user_profile(self):
-        self.client.post('/api/userProfile', json={
+        self.client.post('/api/user-profile', json={
             'name': 'John',
             'lastNames': 'Doe',
             'rolId': 1,
             'userId': self.user_id
         }, headers=self._auth_header())
-        res = self.client.put('/api/userProfile/1', json={
+        res = self.client.put('/api/user-profile/1', json={
             'name': 'Jane',
             'lastNames': 'Smith'
         }, headers=self._auth_header())
@@ -138,39 +138,39 @@ class UserProfileTestCase(unittest.TestCase):
         self.assertEqual(data['data']['name'], 'Jane')
 
     def test_update_user_profile_not_found(self):
-        res = self.client.put('/api/userProfile/999', json={
+        res = self.client.put('/api/user-profile/999', json={
             'name': 'Jane'
         }, headers=self._auth_header())
         self.assertEqual(res.status_code, 404)
 
     def test_update_user_profile_invalid_rol(self):
-        self.client.post('/api/userProfile', json={
+        self.client.post('/api/user-profile', json={
             'name': 'John',
             'lastNames': 'Doe',
             'rolId': 1,
             'userId': self.user_id
         }, headers=self._auth_header())
-        res = self.client.put('/api/userProfile/1', json={
+        res = self.client.put('/api/user-profile/1', json={
             'rolId': 999
         }, headers=self._auth_header())
         self.assertEqual(res.status_code, 400)
 
     def test_delete_user_profile(self):
-        self.client.post('/api/userProfile', json={
+        self.client.post('/api/user-profile', json={
             'name': 'John',
             'lastNames': 'Doe',
             'rolId': 1,
             'userId': self.user_id
         }, headers=self._auth_header())
-        res = self.client.delete('/api/userProfile/1', headers=self._auth_header())
+        res = self.client.delete('/api/user-profile/1', headers=self._auth_header())
         self.assertEqual(res.status_code, 200)
 
     def test_delete_user_profile_not_found(self):
-        res = self.client.delete('/api/userProfile/999', headers=self._auth_header())
+        res = self.client.delete('/api/user-profile/999', headers=self._auth_header())
         self.assertEqual(res.status_code, 404)
 
     def test_create_user_profile_unauthorized(self):
-        res = self.client.post('/api/userProfile', json={
+        res = self.client.post('/api/user-profile', json={
             'name': 'John',
             'lastNames': 'Doe',
             'rolId': 1,
@@ -179,5 +179,5 @@ class UserProfileTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 401)
 
     def test_get_all_user_profiles_unauthorized(self):
-        res = self.client.get('/api/userProfile')
+        res = self.client.get('/api/user-profile')
         self.assertEqual(res.status_code, 401)

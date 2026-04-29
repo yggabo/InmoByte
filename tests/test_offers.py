@@ -210,7 +210,7 @@ def test_accept_offer_compra_updates_property(client, available_property, db, jw
     data = json.loads(res.data)
     assert data['status'] == "ACEPTADA"
     
-    prop_res = client.get('/api/register_and_assign_ownership/properties/1', headers=jwt_headers)
+    prop_res = client.get('/api/register-and-assign-ownership/properties/1', headers=jwt_headers)
     prop_data = json.loads(prop_res.data)
     assert prop_data['status_id'] == 3  # VENDIDA
 
@@ -232,7 +232,7 @@ def test_accept_offer_alquiler_updates_property(client, assigned_property, db, j
     data = json.loads(res.data)
     assert data['status'] == "ACEPTADA"
     
-    prop_res = client.get('/api/register_and_assign_ownership/properties/2', headers=jwt_headers)
+    prop_res = client.get('/api/register-and-assign-ownership/properties/2', headers=jwt_headers)
     prop_data = json.loads(prop_res.data)
     assert prop_data['status_id'] == 4  # ALQUILADA
 
@@ -254,7 +254,7 @@ def test_reject_offer_does_not_change_property(client, available_property, db, j
     data = json.loads(res.data)
     assert data['status'] == "RECHAZADA"
     
-    prop_res = client.get('/api/register_and_assign_ownership/properties/1', headers=jwt_headers)
+    prop_res = client.get('/api/register-and-assign-ownership/properties/1', headers=jwt_headers)
     prop_data = json.loads(prop_res.data)
     assert prop_data['status_id'] == 1  # DISPONIBLE (sin cambios)
 
@@ -275,6 +275,6 @@ def test_cancel_offer_does_not_change_property(client, available_property, db, j
     data = json.loads(res.data)
     assert data['status'] == "CANCELADA"
     
-    prop_res = client.get('/api/register_and_assign_ownership/properties/1', headers=jwt_headers)
+    prop_res = client.get('/api/register-and-assign-ownership/properties/1', headers=jwt_headers)
     prop_data = json.loads(prop_res.data)
     assert prop_data['status_id'] == 1  # DISPONIBLE (sin cambios)
