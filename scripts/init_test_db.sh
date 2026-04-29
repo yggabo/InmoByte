@@ -3,6 +3,7 @@ set -e
 
 echo "Inicializando base de datos de test..."
 
+# Create test database
 python3 -c "
 import os
 import sys
@@ -37,9 +38,35 @@ else:
 
 try:
     with conn.cursor() as cursor:
-        cursor.execute(f'CREATE DATABASE IF NOT EXISTS {DB_TEST_NAME}')
+        cursor.execute(f'DROP DATABASE IF EXISTS {DB_TEST_NAME}')
+        cursor.execute(f'CREATE DATABASE {DB_TEST_NAME}')
     conn.commit()
-    print(f'Base de datos {DB_TEST_NAME} lista')
+    print(f'Base de datos {DB_TEST_NAME} recreada')
 finally:
     conn.close()
+"
+
+# Create tables directly from models (no migrations needed for tests)
+cd /app
+export SQLALCHEMY_DATABASE_URI="mysql+pymysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:3306/${DB_TEST_NAME}"
+python3 -c "
+from app import create_app
+from app.core.extensions import db
+app = create_app('test')
+with app.app_context():
+    db.create_all()
+    print('Tablas creadas desde los modelos')
+"
+
+# Seed the database
+python3 -c "
+from app import create_app
+from app.core.extensions import db
+app = create_app('test')
+with app.app_context():
+    from app.api.statusOffers.seeds import seed_offer_status
+    from app.api.propertyStatus.seeds import seed_property_statuses
+    seed_offer_status()
+    seed_property_statuses()
+    print('Seeds ejecutados correctamente')
 "

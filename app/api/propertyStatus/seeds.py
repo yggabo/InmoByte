@@ -8,10 +8,23 @@ def seed_property_statuses():
     if not inspector.has_table('property_status'):
         return
     
-    statuses = ["en venta", "en alquiler", "reservado", "vendido", "alquilado"]
-    existing = PropertyStatus.query.filter(PropertyStatus.name.in_(statuses)).count()
+    # Define statuses with their accepts_offers flag
+    statuses_data = [
+        ("en venta", True),
+        ("en alquiler", True),
+        ("reservado", False),
+        ("vendido", False),
+        ("alquilado", False)
+    ]
+    
+    existing = PropertyStatus.query.filter(
+        PropertyStatus.name.in_([name for name, _ in statuses_data])
+    ).count()
     
     if existing == 0:
-        status_objects = [PropertyStatus(name=name, status=True) for name in statuses]
+        status_objects = [
+            PropertyStatus(name=name, status=True, accepts_offers=accepts_offers)
+            for name, accepts_offers in statuses_data
+        ]
         db.session.bulk_save_objects(status_objects)
         db.session.commit()

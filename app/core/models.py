@@ -8,3 +8,5 @@ def register_models():
     from app.api.clients.models import Client
     from app.api.agents.models import Agent
     from app.api.propertyStatus.models import PropertyStatus
+    from app.api.statusOffers.models import OfferStatus
+    from app.api.offers.models import Offer
