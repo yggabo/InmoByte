@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.core.extensions import db
 from app.api.auth.models import Users
+from app.api.filters_properties.services import PropertyService
 
 bp = Blueprint('main', __name__)
 
@@ -11,9 +12,12 @@ def hello_world():
     return render_template('main/home.html')
 
 
+
+
 @bp.route('/filter-properties')
 def filter_properties():
-    return render_template('main/jinja_filter.html')
+    options = PropertyService.get_filter_options()
+    return render_template('main/jinja_filter.html', options=options)
 
 
 @bp.route('/protected', methods=['GET'])
