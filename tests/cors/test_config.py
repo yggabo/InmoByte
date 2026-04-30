@@ -5,7 +5,6 @@ from app import create_app
 
 class CORSConfigTestCase(unittest.TestCase):
     def setUp(self):
-        os.environ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         os.environ['CORS_ORIGINS'] = 'http://localhost:3000,https://example.com'
         self.app = create_app('test')
     

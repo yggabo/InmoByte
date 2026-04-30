@@ -1,5 +1,6 @@
 from app.core.extensions import db
 from .models import Property
+from app.api.propertyStatus.models import PropertyStatus
 
 def register_property(data):
     new_property = Property(
@@ -7,8 +8,7 @@ def register_property(data):
         location=data.get("location"),
         price_min=data.get("price_min"),
         price_max=data.get("price_max"),
-        living_space_min=data.get("living_space_min"),
-        living_space_max=data.get("living_space_max"),
+        living_space=data.get("living_space"),
         rooms=data.get("rooms"),
         bathrooms=data.get("bathrooms"),
         description=data.get("description"),
@@ -51,11 +51,7 @@ def assign_agent(property_id, agent_id):
     property_obj = db.session.get(Property, property_id)
     if not property_obj:
         return None
-        
-    if property_obj.status and property_obj.status.name != "DISPONIBLE":
-        raise Exception("La propiedad no está disponible para asignación")
-
+    
     property_obj.agent_id = agent_id
-    property_obj.status_id = 2  # ASIGNADA
     db.session.commit()
     return property_obj
