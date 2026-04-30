@@ -8,8 +8,7 @@ def register_property(data):
         location=data.get("location"),
         price_min=data.get("price_min"),
         price_max=data.get("price_max"),
-        living_space_min=data.get("living_space_min"),
-        living_space_max=data.get("living_space_max"),
+        living_space=data.get("living_space"),
         rooms=data.get("rooms"),
         bathrooms=data.get("bathrooms"),
         description=data.get("description"),
@@ -53,14 +52,6 @@ def assign_agent(property_id, agent_id):
     if not property_obj:
         return None
     
-    # Verificar que la propiedad esté en venta o en alquiler
-    if property_obj.status is None or property_obj.status.name not in ["en venta", "en alquiler"]:
-        raise Exception("La propiedad no está disponible para asignación")
-    
     property_obj.agent_id = agent_id
-    # Cambiar estado a "reservado"
-    reserved_status = PropertyStatus.query.filter_by(name="reservado").first()
-    if reserved_status:
-        property_obj.status_id = reserved_status.id
     db.session.commit()
     return property_obj

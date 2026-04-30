@@ -120,8 +120,7 @@ def sample_property(db):
         location="Valencia",
         price_min=100000,
         price_max=120000,
-        living_space_min=80,
-        living_space_max=100,
+        living_space=90,
         rooms=3,
         bathrooms=2,
         client_id=1,
@@ -147,6 +146,18 @@ def test_get_property_detail(client, sample_property, auth_headers):
     assert res.status_code == 200
     data = json.loads(res.data)
     assert data['location'] == "Valencia"
+    # Verificar que la respuesta incluye cliente, status y agente
+    assert 'client' in data
+    assert 'status' in data
+    assert 'agent' in data
+    # Cliente debería estar presente
+    assert data['client'] is not None
+    assert data['client']['id'] == 1
+    # Status debería estar presente
+    assert data['status'] is not None
+    assert data['status']['id'] == 1
+    # Agent no debería estar asignado aún
+    assert data['agent'] is None
 
 def test_create_property_success(client, db, auth_headers):
     """Verificar el registro de una nueva propiedad."""
@@ -155,8 +166,7 @@ def test_create_property_success(client, db, auth_headers):
         "location": "Madrid",
         "price_min": 150000,
         "price_max": 180000,
-        "living_space_min": 60,
-        "living_space_max": 75,
+        "living_space": 70,
         "rooms": 2,
         "bathrooms": 1,
         "client_id": 1,
@@ -190,5 +200,7 @@ def test_assign_agent_success(client, sample_property, auth_headers):
     res = client.patch('/api/register-and-assign-ownership/properties/1/assign-agent', json=payload, headers=auth_headers)
     assert res.status_code == 200
     data = json.loads(res.data)
-    assert data['agent_id'] == 1
-    assert data['status_id'] == 2
+    assert data['agent'] is not None
+    assert data['agent']['id'] == 1
+    # Verificar que el status NO cambió (follow plan - no change status)
+    assert data['status']['id'] == 1

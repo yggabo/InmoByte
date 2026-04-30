@@ -7,14 +7,20 @@ class PropertySchema(Schema):
     location = fields.String(required=True)
     price_min = fields.Decimal(required=True, validate=validate.Range(min=0))
     price_max = fields.Decimal(required=True, validate=validate.Range(min=0))
-    living_space_min = fields.Decimal(required=True)
-    living_space_max = fields.Decimal(required=True)
+    living_space = fields.Decimal(required=True)
     rooms = fields.Integer(required=True)
     bathrooms = fields.Integer(required=True)
     description = fields.String(validate=validate.Length(max=255))
+    
+    # Campos para recibir al crear/actualizar
     client_id = fields.Integer(required=True)
     status_id = fields.Integer(required=True)
     agent_id = fields.Integer(allow_none=True)
+    
+    # Campos para devolver (computed fields from to_dict())
+    client = fields.Function(lambda obj: obj.client.to_dict() if obj.client else None)
+    status = fields.Function(lambda obj: obj.status.to_dict() if obj.status else None)
+    agent = fields.Function(lambda obj: obj.agent.to_dict() if obj.agent else None)
 
     @validates_schema
     def validate_ranges(self, data, **kwargs):
@@ -23,8 +29,3 @@ class PropertySchema(Schema):
         p_max = data.get('price_max')
         if p_min and p_max and p_min > p_max:
             raise ValidationError("El precio mínimo no puede ser mayor al máximo", "price_min")
-        
-        s_min = data.get('living_space_min')
-        s_max = data.get('living_space_max')
-        if s_min and s_max and s_min > s_max:
-            raise ValidationError("La superficie mínima no puede ser mayor a la máxima", "living_space_min")
