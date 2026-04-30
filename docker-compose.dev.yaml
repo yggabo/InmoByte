@@ -29,6 +29,7 @@ services:
   backend:
     image: python:3.14-slim
     restart: on-failure
+    working_dir: /app
     env_file: .env
     environment:
       FLASK_ENV: ${FLASK_ENV}
