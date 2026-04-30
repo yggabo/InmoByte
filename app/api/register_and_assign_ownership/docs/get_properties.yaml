@@ -1,0 +1,9 @@
+Obtener la lista de todas las propiedades.
+---
+tags:
+  - Properties
+security:
+  - Bearer: []
+responses:
+  200:
+    description: Lista de propiedades obtenida exitosamente

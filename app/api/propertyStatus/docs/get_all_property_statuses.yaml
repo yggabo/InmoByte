@@ -1,0 +1,9 @@
+Obtener todos los estados posibles de una propiedad.
+---
+tags:
+  - PropertyStatus
+security:
+  - Bearer: []
+responses:
+  200:
+    description: Lista de estados obtenida exitosamente

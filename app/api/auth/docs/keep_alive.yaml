@@ -1,0 +1,22 @@
+Verificar la validez del token y renovarlo si está por expirar.
+---
+tags:
+  - Auth
+security:
+  - Bearer: []
+responses:
+  200:
+    description: Estado del token y posible renovación
+    schema:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        expires_in:
+          type: integer
+        new_token:
+          type: string
+        renewed:
+          type: boolean
+  401:
+    description: Token inválido o ausente

@@ -1,0 +1,52 @@
+Crear preferencias para un cliente.
+---
+tags:
+  - Preferences
+summary: Create client preferences
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - client_id
+        - property_type_id
+        - price_min
+        - price_max
+        - location
+        - bedrooms
+        - bathrooms
+        - additional_features
+        - living_space_min
+        - living_space_max
+      properties:
+        client_id:
+          type: integer
+        property_type_id:
+          type: integer
+        price_min:
+          type: number
+        price_max:
+          type: number
+        location:
+          type: string
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        additional_features:
+          type: object
+        living_space_min:
+          type: number
+        living_space_max:
+          type: number
+responses:
+  201:
+    description: Preferences created successfully
+  400:
+    description: Missing required fields
+  409:
+    description: Preferences already exist
+security:
+  - Bearer: []

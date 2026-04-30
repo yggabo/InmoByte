@@ -1,0 +1,30 @@
+Actualizar un perfil de usuario.
+---
+tags:
+  - UserProfile
+security:
+  - Bearer: []
+parameters:
+  - name: profile_id
+    in: path
+    required: true
+    type: integer
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        full_name:
+          type: string
+        phone:
+          type: string
+        role_id:
+          type: integer
+responses:
+  200:
+    description: Perfil actualizado exitosamente
+  400:
+    description: Datos inválidos
+  404:
+    description: Perfil no encontrado

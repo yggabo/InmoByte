@@ -1,0 +1,26 @@
+Actualizar el nombre de un rol.
+---
+tags:
+  - Roles
+security:
+  - Bearer: []
+parameters:
+  - name: role_id
+    in: path
+    required: true
+    type: integer
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+responses:
+  200:
+    description: Rol actualizado exitosamente
+  400:
+    description: Datos inválidos
+  404:
+    description: Rol no encontrado

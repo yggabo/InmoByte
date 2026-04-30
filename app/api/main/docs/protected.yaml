@@ -1,0 +1,11 @@
+Ruta protegida para pruebas de JWT.
+---
+tags:
+  - Main
+security:
+  - Bearer: []
+responses:
+  200:
+    description: Acceso concedido
+  401:
+    description: Token inválido o ausente

@@ -1,0 +1,16 @@
+Eliminar un perfil de usuario.
+---
+tags:
+  - UserProfile
+security:
+  - Bearer: []
+parameters:
+  - name: profile_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Perfil eliminado exitosamente
+  404:
+    description: Perfil no encontrado

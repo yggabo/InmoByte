@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, request
 from app.api.statusOffers import services
 from app.api.statusOffers.schemas import offer_status_create_schema, offer_status_update_schema
@@ -11,6 +12,7 @@ bp = Blueprint('statusOffers', __name__)
 
 @bp.route('', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_all_offer_statuses.yaml')
 def get_all_offer_statuses():
     status_filter = request.args.get('status')
     if status_filter is not None:
@@ -21,6 +23,7 @@ def get_all_offer_statuses():
 
 @bp.route('/<int:status_id>', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_offer_status.yaml')
 def get_offer_status(status_id):
     os = services.get_offer_status_by_id(status_id)
     if not os:
@@ -30,6 +33,7 @@ def get_offer_status(status_id):
 
 @bp.route('', methods=['POST'])
 @jwt_required()
+@swag_from('docs/create_offer_status.yaml')
 def create_offer_status():
     try:
         data = offer_status_create_schema.load(request.get_json())
@@ -44,6 +48,7 @@ def create_offer_status():
 
 @bp.route('/<int:status_id>', methods=['PUT'])
 @jwt_required()
+@swag_from('docs/update_offer_status.yaml')
 def update_offer_status(status_id):
     try:
         data = offer_status_update_schema.load(request.get_json())
@@ -57,6 +62,7 @@ def update_offer_status(status_id):
 
 @bp.route('/<int:status_id>', methods=['DELETE'])
 @jwt_required()
+@swag_from('docs/delete_offer_status.yaml')
 def delete_offer_status(status_id):
     os = services.delete_offer_status(status_id)
     if not os:

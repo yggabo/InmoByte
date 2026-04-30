@@ -1,0 +1,19 @@
+Crear un nuevo rol.
+---
+tags:
+  - Roles
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: AGENTE
+responses:
+  201:
+    description: Rol creado exitosamente
+  400:
+    description: El rol ya existe o faltan datos

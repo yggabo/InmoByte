@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, request
 from app.api.userProfile import services
 from app.api.userProfile.schemas import (
@@ -13,6 +14,7 @@ bp = Blueprint('userProfile', __name__)
 
 @bp.route('', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_all_user_profiles.yaml')
 def get_all_user_profiles():
     profiles = services.get_all_user_profiles()
     return success_response(data=[profile.to_dict() for profile in profiles])
@@ -20,6 +22,7 @@ def get_all_user_profiles():
 
 @bp.route('/<int:profile_id>', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_user_profile.yaml')
 def get_user_profile(profile_id):
     profile = services.get_user_profile_by_id(profile_id)
     if not profile:
@@ -29,6 +32,7 @@ def get_user_profile(profile_id):
 
 @bp.route('/user/<int:user_id>', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_user_profile_by_user.yaml')
 def get_user_profile_by_user(user_id):
     profile = services.get_user_profile_by_user_id(user_id)
     if not profile:
@@ -38,6 +42,7 @@ def get_user_profile_by_user(user_id):
 
 @bp.route('', methods=['POST'])
 @jwt_required()
+@swag_from('docs/create_user_profile.yaml')
 def create_user_profile():
     data = request.get_json()
     if not data:
@@ -58,6 +63,7 @@ def create_user_profile():
 
 @bp.route('/<int:profile_id>', methods=['PUT'])
 @jwt_required()
+@swag_from('docs/update_user_profile.yaml')
 def update_user_profile(profile_id):
     data = request.get_json()
     if not data:
@@ -78,6 +84,7 @@ def update_user_profile(profile_id):
 
 @bp.route('/<int:profile_id>', methods=['DELETE'])
 @jwt_required()
+@swag_from('docs/delete_user_profile.yaml')
 def delete_user_profile(profile_id):
     profile = services.delete_user_profile(profile_id)
     if not profile:

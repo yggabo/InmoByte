@@ -1,0 +1,16 @@
+Obtener un perfil de usuario por su ID.
+---
+tags:
+  - UserProfile
+security:
+  - Bearer: []
+parameters:
+  - name: profile_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Detalles del perfil
+  404:
+    description: Perfil no encontrado

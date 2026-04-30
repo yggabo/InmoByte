@@ -1,0 +1,24 @@
+Listar todas las citas con filtros opcionales.
+---
+tags:
+  - Appointments
+parameters:
+  - name: date
+    in: query
+    type: string
+    description: Filtrar por fecha (YYYY-MM-DD)
+  - name: client_id
+    in: query
+    type: integer
+    description: Filtrar por ID de cliente
+  - name: agent_id
+    in: query
+    type: integer
+    description: Filtrar por ID de agente
+  - name: property_id
+    in: query
+    type: integer
+    description: Filtrar por ID de propiedad
+responses:
+  200:
+    description: Listado de citas obtenido exitosamente

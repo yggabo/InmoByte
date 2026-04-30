@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, request
 from app.api.agents import services
 from app.api.agents.schemas import agent_create_schema
@@ -10,6 +11,7 @@ bp = Blueprint('agents', __name__)
 
 @bp.route('', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_all_agents.yaml')
 def get_all_agents():
     status_filter = request.args.get('status')
     if status_filter is not None:
@@ -21,6 +23,7 @@ def get_all_agents():
 
 @bp.route('/<int:agent_id>', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_agent.yaml')
 def get_agent(agent_id):
     agent = services.get_agent_by_id(agent_id)
     if not agent:
@@ -30,6 +33,7 @@ def get_agent(agent_id):
 
 @bp.route('', methods=['POST'])
 @jwt_required()
+@swag_from('docs/create_agent.yaml')
 def create_agent():
     try:
         data = agent_create_schema.load(request.get_json())
@@ -46,6 +50,7 @@ def create_agent():
 
 @bp.route('/<int:agent_id>', methods=['DELETE'])
 @jwt_required()
+@swag_from('docs/delete_agent.yaml')
 def delete_agent(agent_id):
     agent = services.delete_agent(agent_id)
     if not agent:

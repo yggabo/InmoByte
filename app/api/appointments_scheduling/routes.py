@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, request
 from . import services
 from flask_jwt_extended import jwt_required
@@ -8,6 +9,7 @@ from app.core.utils import success_response, error_response
 bp = Blueprint('appointments', __name__)
 
 @bp.route('', methods=['GET'])
+@swag_from('docs/list_appointments.yaml')
 def list_appointments():
     filters = {
         'date': request.args.get('date'),
@@ -23,6 +25,7 @@ def list_appointments():
 
 @bp.route('', methods=['POST'])
 @jwt_required()
+@swag_from('docs/create_appointment.yaml')
 def create_appointment():
     try:
         data = appointment_create_schema.load(request.get_json())
@@ -47,6 +50,7 @@ def create_appointment():
 
 @bp.route('/<int:appointment_id>', methods=['PUT', 'PATCH'])
 @jwt_required()
+@swag_from('docs/update_appointment.yaml')
 def update_appointment(appointment_id):
     try:
         data = appointment_update_schema.load(request.get_json(), partial=True)
@@ -68,6 +72,7 @@ def update_appointment(appointment_id):
 
 @bp.route('/<int:appointment_id>', methods=['DELETE'])
 @jwt_required()
+@swag_from('docs/delete_appointment.yaml')
 def delete_appointment(appointment_id):
     try:
         services.delete_appointment(appointment_id)

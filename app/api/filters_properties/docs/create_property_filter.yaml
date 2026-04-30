@@ -1,0 +1,26 @@
+Crear una nueva propiedad (vía filtros/backend).
+---
+tags:
+  - Filters
+security:
+  - Bearer: []
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        type:
+          type: string
+        location:
+          type: string
+        price_min:
+          type: number
+        price_max:
+          type: number
+responses:
+  201:
+    description: Propiedad creada exitosamente
+  400:
+    description: Datos inválidos

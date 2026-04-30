@@ -1,0 +1,7 @@
+Obtener la lista de todos los roles.
+---
+tags:
+  - Roles
+responses:
+  200:
+    description: Lista de roles obtenida exitosamente

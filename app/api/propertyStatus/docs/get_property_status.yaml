@@ -1,0 +1,16 @@
+Obtener un estado de propiedad específico por ID.
+---
+tags:
+  - PropertyStatus
+security:
+  - Bearer: []
+parameters:
+  - name: status_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Detalles del estado
+  404:
+    description: Estado no encontrado

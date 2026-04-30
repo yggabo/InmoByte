@@ -1,0 +1,14 @@
+Obtener detalles de un rol específico.
+---
+tags:
+  - Roles
+parameters:
+  - name: role_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Detalles del rol
+  404:
+    description: Rol no encontrado

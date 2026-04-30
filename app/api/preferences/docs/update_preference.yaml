@@ -1,0 +1,43 @@
+Actualizar preferencias de un cliente.
+---
+tags:
+  - Preferences
+summary: Update client preferences
+parameters:
+  - name: client_id
+    in: path
+    required: true
+    type: integer
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        property_type_id:
+          type: integer
+        price_min:
+          type: number
+        price_max:
+          type: number
+        location:
+          type: string
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        additional_features:
+          type: object
+        living_space_min:
+          type: number
+        living_space_max:
+          type: number
+responses:
+  200:
+    description: Preferences updated successfully
+  400:
+    description: No data provided
+  404:
+    description: Preferences not found
+security:
+  - Bearer: []

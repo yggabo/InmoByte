@@ -1,0 +1,7 @@
+Página de inicio de la API.
+---
+tags:
+  - Main
+responses:
+  200:
+    description: Página de inicio renderizada

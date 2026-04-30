@@ -1,0 +1,16 @@
+Eliminar un rol.
+---
+tags:
+  - Roles
+security:
+  - Bearer: []
+parameters:
+  - name: role_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Rol eliminado exitosamente
+  404:
+    description: Rol no encontrado

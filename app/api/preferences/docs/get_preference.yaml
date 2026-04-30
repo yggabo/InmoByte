@@ -1,0 +1,17 @@
+Obtener preferencias de un cliente.
+---
+tags:
+  - Preferences
+summary: Get client preferences
+parameters:
+  - name: client_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Preferences retrieved successfully
+  404:
+    description: Preferences not found
+security:
+  - Bearer: []

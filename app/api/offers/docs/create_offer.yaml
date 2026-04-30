@@ -1,0 +1,35 @@
+Crear una nueva oferta (compra o alquiler).
+---
+tags:
+  - Offers
+summary: Create a new offer
+description: Creates a new offer for a property. The offer type (COMPRA/ALQUILER) is determined by the property.
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - offered_price
+        - property_id
+        - client_id
+      properties:
+        offered_price:
+          type: number
+          description: Offered price amount
+        property_id:
+          type: integer
+          description: Property ID (determines if offer is for purchase or rental)
+        client_id:
+          type: integer
+          description: Client ID (buyer/renter)
+responses:
+  201:
+    description: Offer created successfully
+  400:
+    description: Invalid data or missing fields
+  409:
+    description: Property not available for offers
+  500:
+    description: Internal server error

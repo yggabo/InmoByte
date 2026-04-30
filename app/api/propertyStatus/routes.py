@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, request
 from app.api.propertyStatus import services
 from app.api.propertyStatus.schemas import property_status_create_schema, property_status_update_schema
@@ -10,6 +11,7 @@ bp = Blueprint('propertyStatus', __name__)
 
 @bp.route('', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_all_property_statuses.yaml')
 def get_all_property_statuses():
     status_filter = request.args.get('status')
     if status_filter is not None:
@@ -20,6 +22,7 @@ def get_all_property_statuses():
 
 @bp.route('/<int:status_id>', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_property_status.yaml')
 def get_property_status(status_id):
     ps = services.get_property_status_by_id(status_id)
     if not ps:
@@ -29,6 +32,7 @@ def get_property_status(status_id):
 
 @bp.route('', methods=['POST'])
 @jwt_required()
+@swag_from('docs/create_property_status.yaml')
 def create_property_status():
     try:
         data = property_status_create_schema.load(request.get_json())
@@ -43,6 +47,7 @@ def create_property_status():
 
 @bp.route('/<int:status_id>', methods=['PUT'])
 @jwt_required()
+@swag_from('docs/update_property_status.yaml')
 def update_property_status(status_id):
     try:
         data = property_status_update_schema.load(request.get_json())
@@ -56,6 +61,7 @@ def update_property_status(status_id):
 
 @bp.route('/<int:status_id>', methods=['DELETE'])
 @jwt_required()
+@swag_from('docs/delete_property_status.yaml')
 def delete_property_status(status_id):
     ps = services.delete_property_status(status_id)
     if not ps:

@@ -1,0 +1,24 @@
+Asignar un agente a una propiedad.
+---
+tags:
+  - Properties
+security:
+  - Bearer: []
+parameters:
+  - name: property_id
+    in: path
+    required: true
+    type: integer
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        agent_id:
+          type: integer
+responses:
+  200:
+    description: Agente asignado exitosamente
+  404:
+    description: Propiedad no encontrada

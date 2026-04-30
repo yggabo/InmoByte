@@ -1,0 +1,16 @@
+Eliminar un agente.
+---
+tags:
+  - Agents
+security:
+  - Bearer: []
+parameters:
+  - name: agent_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Agente eliminado exitosamente
+  404:
+    description: Agente no encontrado
