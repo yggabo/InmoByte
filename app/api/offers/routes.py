@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from .services import create_offer, get_offers_by_property, get_offer_by_id, update_offer_status
 from .schemas import OfferSchema, OfferStatusUpdateSchema
+from .models import Offer
 
 bp = Blueprint('offers', __name__)
 offer_schema = OfferSchema()

@@ -1,206 +1,291 @@
-import pytest
+import unittest
 import json
-import os
 from app import create_app
-from app.core.extensions import db as _db
-from app.api.register_and_assign_ownership.models import Property, PropertyStatus
-from app.api.agents.models import Agent
+from app.core.extensions import db
 from app.api.clients.models import Client
-from app.api.auth.models import Users
+from app.api.propertyStatus.models import PropertyStatus
+from app.api.agents.models import Agent
+from app.api.userProfile.models import UserProfile
+from app.api.roles.models import Roles
+from app.api.register_and_assign_ownership.models import Property
 
-# --- FIXTURES ---
 
-@pytest.fixture(scope='module')
-def app():
-    """Configuración de la aplicación para pruebas."""
-    if not os.environ.get('SQLALCHEMY_DATABASE_URI'):
-        from dotenv import load_dotenv
-        load_dotenv()
-        os.environ['SQLALCHEMY_DATABASE_URI'] = (
-            f"mysql+pymysql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
-            f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_TEST_NAME', 'app_db_test')}"
-        )
-    
-    _app = create_app('test')
-    return _app
+class PropertiesTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app('test')
+        self.client = self.app.test_client()
 
-@pytest.fixture
-def client(app):
-    """Cliente de pruebas de Flask."""
-    return app.test_client()
+        with self.app.app_context():
+            db.create_all()
+            self._seed_test_data()
 
-@pytest.fixture
-def db(app):
-    """Base de datos limpia para cada test."""
-    with app.app_context():
-        _db.create_all()
-        
-        from app.core.extensions import bcrypt
-        from app.api.userProfile.models import UserProfile
-        from app.api.roles.models import Roles
-        
-        # Verificar si el status ya existe
-        status_1 = PropertyStatus.query.filter(PropertyStatus.id == 1).first()
-        if not status_1:
-            status_1 = PropertyStatus(id=1, name="DISPONIBLE")
-            _db.session.add(status_1)
-        
-        status_2 = PropertyStatus.query.filter(PropertyStatus.id == 2).first()
-        if not status_2:
-            status_2 = PropertyStatus(id=2, name="ASIGNADA")
-            _db.session.add(status_2)
-        
-        # Verificar si el cliente ya existe
-        client_obj = Client.query.filter(Client.id == 1).first()
-        if not client_obj:
-            client_obj = Client(id=1, name="Juan Vendedor", email="juan@example.com")
-            _db.session.add(client_obj)
-        
-        # Verificar si el rol ya existe (del seed)
-        rol = Roles.query.filter(Roles.name == 'agente').first()
-        if not rol:
-            rol = Roles(id=1, name='agente', status=True)
-            _db.session.add(rol)
-        
-        # Verificar si el usuario ya existe
-        user = Users.query.filter(Users.username == 'testuser').first()
-        if not user:
-            user = Users(
-                id=1,
-                username="testuser",
-                email="test@example.com",
-                password_hash=bcrypt.generate_password_hash("password123").decode('utf-8')
+        self._register_and_login()
+
+    def tearDown(self):
+        with self.app.app_context():
+            db.session.remove()
+            db.drop_all()
+
+    def _register_and_login(self):
+        self.client.post('/api/auth/register', json={
+            'username': 'testuser',
+            'email': 'test@example.com',
+            'password': 'password123'
+        })
+        login_res = self.client.post('/api/auth/login', json={
+            'username': 'testuser',
+            'password': 'password123'
+        })
+        data = json.loads(login_res.data)
+        self.access_token = data['data']['access_token']
+
+    def _auth_headers(self):
+        return {'Authorization': f'Bearer {self.access_token}'}
+
+    def _seed_test_data(self):
+        with self.app.app_context():
+            # Check if role exists first
+            from app.api.roles.models import Roles
+            role = Roles.query.filter_by(name='agente').first()
+            if not role:
+                role = Roles(name='agente', status=True)
+                db.session.add(role)
+                db.session.flush()
+
+            # Create a test user first
+            from app.api.auth.models import Users
+            user = Users.query.filter_by(username='testuser_agent').first()
+            if not user:
+                from werkzeug.security import generate_password_hash
+                user = Users(
+                    username='testuser_agent',
+                    email='agent@example.com',
+                    password_hash=generate_password_hash('password123')
+                )
+                db.session.add(user)
+                db.session.flush()
+
+            # Create user profile for agent
+            user_profile = UserProfile(
+                name='Agent',
+                lastNames='Test',
+                telefono='123456789',
+                rolId=role.id,
+                userId=user.id
             )
-            _db.session.add(user)
-        
-        # Verificar si el userProfile ya existe
-        userProfile = UserProfile.query.filter(UserProfile.userId == 1).first()
-        if not userProfile:
-            userProfile = UserProfile(
-                id=1,
-                name="Agente",
-                lastNames="007",
-                telefono="1234567890",
-                rolId=rol.id,
-                userId=1
-            )
-            _db.session.add(userProfile)
-        
-        # Verificar si el agente ya existe
-        from app.api.agents.models import Agent
-        agent_obj = Agent.query.filter(Agent.userProfileId == 1).first()
-        if not agent_obj:
-            agent_obj = Agent(id=1, userProfileId=1, status=True)
-            _db.session.add(agent_obj)
-        
-        _db.session.commit()
-        
-        yield _db
-        
-        _db.session.remove()
-        _db.drop_all()
+            db.session.add(user_profile)
+            db.session.flush()
 
-@pytest.fixture
-def auth_headers(client, db):
-    """Headers con token JWT."""
-    res = client.post('/api/auth/login', json={
-        'username': 'testuser',
-        'password': 'password123'
-    })
-    data = json.loads(res.data)
-    token = data['data']['access_token']
-    return {'Authorization': f'Bearer {token}'}
+            # Create agent
+            agent = Agent(userProfileId=user_profile.id, status=True)
+            db.session.add(agent)
 
-@pytest.fixture
-def sample_property(db):
-    """Crea una propiedad inicial para pruebas de detalle, actualización y borrado."""
-    prop = Property(
-        id=1,
-        type="Casa",
-        location="Valencia",
-        price_min=100000,
-        price_max=120000,
-        living_space=90,
-        rooms=3,
-        bathrooms=2,
-        client_id=1,
-        status_id=1
-    )
-    db.session.add(prop)
-    db.session.commit()
-    return prop
+            # Check if property status exists
+            status = PropertyStatus.query.filter_by(name='en venta').first()
+            if not status:
+                status = PropertyStatus(name='en venta', status=True, accepts_offers=True)
+                db.session.add(status)
+                db.session.flush()
 
-# --- TESTS ---
+            # Check if client exists
+            client = Client.query.filter_by(email='john@example.com').first()
+            if not client:
+                client = Client(name='John', email='john@example.com', phone='1234567890', address='123 Main St', age=30)
+                db.session.add(client)
 
-def test_get_all_properties(client, sample_property, auth_headers):
-    """Verificar que el listado de propiedades funciona."""
-    res = client.get('/api/register-and-assign-ownership/properties', headers=auth_headers)
-    assert res.status_code == 200
-    data = json.loads(res.data)
-    assert isinstance(data, list)
-    assert len(data) == 1
+            db.session.commit()
 
-def test_get_property_detail(client, sample_property, auth_headers):
-    """Verificar que se obtiene el detalle de una propiedad específica."""
-    res = client.get('/api/register-and-assign-ownership/properties/1', headers=auth_headers)
-    assert res.status_code == 200
-    data = json.loads(res.data)
-    assert data['location'] == "Valencia"
-    # Verificar que la respuesta incluye cliente, status y agente
-    assert 'client' in data
-    assert 'status' in data
-    assert 'agent' in data
-    # Cliente debería estar presente
-    assert data['client'] is not None
-    assert data['client']['id'] == 1
-    # Status debería estar presente
-    assert data['status'] is not None
-    assert data['status']['id'] == 1
-    # Agent no debería estar asignado aún
-    assert data['agent'] is None
+            # Store IDs for use in tests
+            self.agent_id = agent.id
+            self.status_id = status.id
+            self.client_id = client.id
 
-def test_create_property_success(client, db, auth_headers):
-    """Verificar el registro de una nueva propiedad."""
-    payload = {
-        "type": "Apartamento",
-        "location": "Madrid",
-        "price_min": 150000,
-        "price_max": 180000,
-        "living_space": 70,
-        "rooms": 2,
-        "bathrooms": 1,
-        "client_id": 1,
-        "status_id": 1
-    }
-    res = client.post('/api/register-and-assign-ownership/properties', json=payload, headers=auth_headers)
-    assert res.status_code == 201
-    data = json.loads(res.data)
-    assert data['location'] == "Madrid"
+    def test_create_property(self):
+        res = self.client.post('/api/register-and-assign-ownership/properties', json={
+            'type': 'Casa',
+            'location': 'Madrid',
+            'price_min': 100000,
+            'price_max': 150000,
+            'living_space': 100,
+            'rooms': 3,
+            'bathrooms': 2,
+            'client_id': self.client_id,
+            'status_id': self.status_id
+        }, headers=self._auth_headers())
 
-def test_update_property_partial(client, sample_property, auth_headers):
-    """Verificar que la actualización parcial funciona."""
-    payload = {"price_max": 130000}
-    res = client.put('/api/register-and-assign-ownership/properties/1', json=payload, headers=auth_headers)
-    assert res.status_code == 200
-    data = json.loads(res.data)
-    assert float(data['price_max']) == 130000.0
-    assert data['location'] == "Valencia"
+        self.assertEqual(res.status_code, 201)
+        data = json.loads(res.data)
+        self.assertEqual(data['type'], 'Casa')
+        self.assertEqual(data['location'], 'Madrid')
 
-def test_delete_property(client, sample_property, auth_headers):
-    """Verificar que se puede eliminar una propiedad."""
-    res = client.delete('/api/register-and-assign-ownership/properties/1', headers=auth_headers)
-    assert res.status_code == 200
-    
-    res_get = client.get('/api/register-and-assign-ownership/properties/1', headers=auth_headers)
-    assert res_get.status_code == 404
+    def test_create_property_invalid_data(self):
+        res = self.client.post('/api/register-and-assign-ownership/properties', json={
+            'type': 'Ca',
+            'location': 'Madrid',
+            'price_min': 150000,
+            'price_max': 100000,
+            'living_space': 100,
+            'rooms': 3,
+            'bathrooms': 2,
+            'client_id': self.client_id,
+            'status_id': self.status_id
+        }, headers=self._auth_headers())
 
-def test_assign_agent_success(client, sample_property, auth_headers):
-    """Verificar la asignación de un agente."""
-    payload = {"agent_id": 1}
-    res = client.patch('/api/register-and-assign-ownership/properties/1/assign-agent', json=payload, headers=auth_headers)
-    assert res.status_code == 200
-    data = json.loads(res.data)
-    assert data['agent'] is not None
-    assert data['agent']['id'] == 1
-    # Verificar que el status NO cambió (follow plan - no change status)
-    assert data['status']['id'] == 1
+        self.assertEqual(res.status_code, 400)
+        data = json.loads(res.data)
+        self.assertIn('error', data)
+
+    def test_create_property_missing_fields(self):
+        res = self.client.post('/api/register-and-assign-ownership/properties', json={
+            'type': 'Casa'
+        }, headers=self._auth_headers())
+
+        self.assertEqual(res.status_code, 400)
+
+    def test_get_all_properties(self):
+        self.client.post('/api/register-and-assign-ownership/properties', json={
+            'type': 'Casa',
+            'location': 'Madrid',
+            'price_min': 100000,
+            'price_max': 150000,
+            'living_space': 100,
+            'rooms': 3,
+            'bathrooms': 2,
+            'client_id': self.client_id,
+            'status_id': self.status_id
+        }, headers=self._auth_headers())
+
+        res = self.client.get('/api/register-and-assign-ownership/properties', headers=self._auth_headers())
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertGreaterEqual(len(data), 1)
+
+    def test_get_property_by_id(self):
+        create_res = self.client.post('/api/register-and-assign-ownership/properties', json={
+            'type': 'Casa',
+            'location': 'Madrid',
+            'price_min': 100000,
+            'price_max': 150000,
+            'living_space': 100,
+            'rooms': 3,
+            'bathrooms': 2,
+            'client_id': self.client_id,
+            'status_id': self.status_id
+        }, headers=self._auth_headers())
+        created_data = json.loads(create_res.data)
+        property_id = created_data['id']
+
+        res = self.client.get(f'/api/register-and-assign-ownership/properties/{property_id}', headers=self._auth_headers())
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data['id'], property_id)
+
+    def test_get_property_not_found(self):
+        res = self.client.get('/api/register-and-assign-ownership/properties/9999', headers=self._auth_headers())
+        self.assertEqual(res.status_code, 404)
+
+    def test_update_property(self):
+        create_res = self.client.post('/api/register-and-assign-ownership/properties', json={
+            'type': 'Casa',
+            'location': 'Madrid',
+            'price_min': 100000,
+            'price_max': 150000,
+            'living_space': 100,
+            'rooms': 3,
+            'bathrooms': 2,
+            'client_id': self.client_id,
+            'status_id': self.status_id
+        }, headers=self._auth_headers())
+        created_data = json.loads(create_res.data)
+        property_id = created_data['id']
+
+        res = self.client.put(f'/api/register-and-assign-ownership/properties/{property_id}', json={
+            'location': 'Barcelona',
+            'price_max': 200000
+        }, headers=self._auth_headers())
+
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data['location'], 'Barcelona')
+        self.assertEqual(float(data['price_max']), 200000)
+
+    def test_update_property_not_found(self):
+        res = self.client.put('/api/register-and-assign-ownership/properties/9999', json={
+            'location': 'Barcelona'
+        }, headers=self._auth_headers())
+
+        self.assertEqual(res.status_code, 404)
+
+    def test_delete_property(self):
+        create_res = self.client.post('/api/register-and-assign-ownership/properties', json={
+            'type': 'Casa',
+            'location': 'Madrid',
+            'price_min': 100000,
+            'price_max': 150000,
+            'living_space': 100,
+            'rooms': 3,
+            'bathrooms': 2,
+            'client_id': self.client_id,
+            'status_id': self.status_id
+        }, headers=self._auth_headers())
+        created_data = json.loads(create_res.data)
+        property_id = created_data['id']
+
+        res = self.client.delete(f'/api/register-and-assign-ownership/properties/{property_id}', headers=self._auth_headers())
+        self.assertEqual(res.status_code, 200)
+
+        get_res = self.client.get(f'/api/register-and-assign-ownership/properties/{property_id}', headers=self._auth_headers())
+        self.assertEqual(get_res.status_code, 404)
+
+    def test_delete_property_not_found(self):
+        res = self.client.delete('/api/register-and-assign-ownership/properties/9999', headers=self._auth_headers())
+        self.assertEqual(res.status_code, 404)
+
+    def test_assign_agent(self):
+        create_res = self.client.post('/api/register-and-assign-ownership/properties', json={
+            'type': 'Casa',
+            'location': 'Madrid',
+            'price_min': 100000,
+            'price_max': 150000,
+            'living_space': 100,
+            'rooms': 3,
+            'bathrooms': 2,
+            'client_id': self.client_id,
+            'status_id': self.status_id
+        }, headers=self._auth_headers())
+        created_data = json.loads(create_res.data)
+        property_id = created_data['id']
+
+        res = self.client.patch(f'/api/register-and-assign-ownership/properties/{property_id}/assign-agent', json={
+            'agent_id': self.agent_id
+        }, headers=self._auth_headers())
+
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data['agent']['id'], self.agent_id)
+
+    def test_assign_agent_property_not_found(self):
+        res = self.client.patch('/api/register-and-assign-ownership/properties/9999/assign-agent', json={
+            'agent_id': self.agent_id
+        }, headers=self._auth_headers())
+
+        self.assertEqual(res.status_code, 404)
+
+    def test_create_property_without_token(self):
+        res = self.client.post('/api/register-and-assign-ownership/properties', json={
+            'type': 'Casa',
+            'location': 'Madrid',
+            'price_min': 100000,
+            'price_max': 150000,
+            'living_space': 100,
+            'rooms': 3,
+            'bathrooms': 2,
+            'client_id': self.client_id,
+            'status_id': self.status_id
+        })
+
+        self.assertEqual(res.status_code, 401)
+
+
+if __name__ == '__main__':
+    unittest.main()

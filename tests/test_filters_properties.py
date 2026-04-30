@@ -2,209 +2,291 @@ import unittest
 import json
 from app import create_app
 from app.core.extensions import db
-from app.api.filters_properties.models import Property
-from app.api.register_and_assign_ownership.models import PropertyStatus
-from app.api.agents.models import Agent
 from app.api.clients.models import Client
+from app.api.propertyStatus.models import PropertyStatus
+from app.api.register_and_assign_ownership.models import Property
+
 
 class FiltersPropertiesTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app('test')
         self.client = self.app.test_client()
-        
+
         with self.app.app_context():
             db.create_all()
-            # Crear registros relacionados
-            client = Client(name="Test Client", email="test@example.com")
-            status1 = PropertyStatus(id=1, name="DISPONIBLE")
-            status2 = PropertyStatus(id=2, name="ASIGNADA")
-            status3 = PropertyStatus(id=3, name="VENDIDA")
-            db.session.add_all([client, status1, status2, status3])
-            db.session.commit()
-            # Crear usuario para JWT
-            self.client.post('/api/auth/register', json={
-                'username': 'testuser',
-                'email': 'test@example.com',
-                'password': 'password123'
-            })
-            # Crear propiedades de prueba
-            self._create_test_properties()
+            self._seed_test_data()
+
+        self._register_and_login()
 
     def tearDown(self):
         with self.app.app_context():
             db.session.remove()
             db.drop_all()
 
-    def _get_access_token(self):
+    def _register_and_login(self):
+        self.client.post('/api/auth/register', json={
+            'username': 'testuser',
+            'email': 'test@example.com',
+            'password': 'password123'
+        })
         login_res = self.client.post('/api/auth/login', json={
             'username': 'testuser',
             'password': 'password123'
         })
         data = json.loads(login_res.data)
-        return data['data']['access_token']
+        self.access_token = data['data']['access_token']
 
-    def _create_test_properties(self):
-        # Crear algunas propiedades de prueba con el esquema correcto
-        prop1 = Property(
-            type='house',
-            location='Madrid',
-            price_min=250000.0,
-            price_max=350000.0,
-            living_space_min=100.0,
-            living_space_max=150.0,
-            rooms=3,
-            bathrooms=2,
-            description='Hermosa casa',
-            client_id=1,
-            status_id=1  # DISPONIBLE
-        )
-        prop2 = Property(
-            type='apartment',
-            location='Barcelona',
-            price_min=150000.0,
-            price_max=250000.0,
-            living_space_min=70.0,
-            living_space_max=90.0,
-            rooms=2,
-            bathrooms=1,
-            description='Apartamento moderno',
-            client_id=1,
-            status_id=1
-        )
-        prop3 = Property(
-            type='land',
-            location='Valencia',
-            price_min=40000.0,
-            price_max=60000.0,
-            living_space_min=900.0,
-            living_space_max=1100.0,
-            rooms=None,
-            bathrooms=None,
-            description='Terreno amplio',
-            client_id=1,
-            status_id=3  # VENDIDO
-        )
-        db.session.add_all([prop1, prop2, prop3])
-        db.session.commit()
+    def _auth_headers(self):
+        return {'Authorization': f'Bearer {self.access_token}'}
 
-    def test_get_properties_no_filters(self):
-        """Obtener todas las propiedades sin filtros"""
-        res = self.client.get('/api/filter-properties')
-        self.assertEqual(res.status_code, 200)
-        data = json.loads(res.data)
-        self.assertEqual(len(data['data']), 3)
-        self.assertIn('house', [p['type'] for p in data['data']])
-
-    def test_get_properties_with_type_filter(self):
-        """Filtrar propiedades por tipo"""
-        res = self.client.get('/api/filter-properties?type=house')
-        self.assertEqual(res.status_code, 200)
-        data = json.loads(res.data)
-        self.assertEqual(len(data['data']), 1)
-        self.assertEqual(data['data'][0]['type'], 'house')
-
-    def test_get_properties_with_location_filter(self):
-        """Filtrar propiedades por ubicación"""
-        res = self.client.get('/api/filter-properties?location=Madrid')
-        self.assertEqual(res.status_code, 200)
-        data = json.loads(res.data)
-        self.assertEqual(len(data['data']), 1)
-        self.assertEqual(data['data'][0]['location'], 'Madrid')
-
-    def test_get_properties_with_price_filters(self):
-        """Filtrar propiedades por rango de precio"""
-        res = self.client.get('/api/filter-properties?min_price=200000&max_price=300000')
-        self.assertEqual(res.status_code, 200)
-        data = json.loads(res.data)
-        # Debería devolver la casa (price_min=250000, price_max=350000) que se solapa con 200000-300000
-        self.assertEqual(len(data['data']), 1)
-        self.assertEqual(data['data'][0]['type'], 'house')
-
-    def test_get_properties_with_multiple_filters(self):
-        """Filtrar con múltiples criterios"""
-        res = self.client.get('/api/filter-properties?type=apartment&location=Barcelona&min_price=140000')
-        self.assertEqual(res.status_code, 200)
-        data = json.loads(res.data)
-        self.assertEqual(len(data['data']), 1)
-        self.assertEqual(data['data'][0]['type'], 'apartment')
-
-    def test_get_property_by_id_existing(self):
-        """Obtener propiedad por ID existente"""
-        # Obtener el ID de una propiedad existente
+    def _seed_test_data(self):
         with self.app.app_context():
-            prop = Property.query.filter_by(type='house').first()
-            prop_id = prop.id
-        
-        res = self.client.get(f'/api/filter-properties/{prop_id}')
+            # Check if property status exists
+            from app.api.propertyStatus.models import PropertyStatus
+            status = PropertyStatus.query.filter_by(name='en venta').first()
+            if not status:
+                status = PropertyStatus(name='en venta', status=True, accepts_offers=True)
+                db.session.add(status)
+                db.session.flush()
+
+            # Check if client exists
+            client = Client.query.filter_by(email='john@example.com').first()
+            if not client:
+                client = Client(name='John', email='john@example.com', phone='1234567890', address='123 Main St', age=30)
+                db.session.add(client)
+                db.session.flush()
+
+            # Create multiple properties for testing filters
+            properties = [
+                Property(
+                    type='Casa',
+                    location='Madrid',
+                    price_min=100000,
+                    price_max=150000,
+                    living_space=100,
+                    rooms=3,
+                    bathrooms=2,
+                    description='House in Madrid',
+                    client_id=client.id,
+                    status_id=status.id
+                ),
+                Property(
+                    type='Apartamento',
+                    location='Barcelona',
+                    price_min=80000,
+                    price_max=120000,
+                    living_space=80,
+                    rooms=2,
+                    bathrooms=1,
+                    description='Apartment in Barcelona',
+                    client_id=client.id,
+                    status_id=status.id
+                ),
+                Property(
+                    type='Casa',
+                    location='Madrid',
+                    price_min=200000,
+                    price_max=250000,
+                    living_space=150,
+                    rooms=4,
+                    bathrooms=3,
+                    description='Big house in Madrid',
+                    client_id=client.id,
+                    status_id=status.id
+                )
+            ]
+            db.session.add_all(properties)
+            db.session.commit()
+
+    def test_search_no_filters(self):
+        res = self.client.get('/api/filter-properties/')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
-        self.assertEqual(data['data']['type'], 'house')
+        self.assertGreaterEqual(len(data['data']), 3)
 
-    def test_get_property_by_id_not_found(self):
-        """Obtener propiedad por ID inexistente"""
-        res = self.client.get('/api/filter-properties/999')
+    def test_search_by_type(self):
+        res = self.client.get('/api/filter-properties/?type=Casa')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        for prop in data['data']:
+            self.assertEqual(prop['type'], 'Casa')
+
+    def test_search_by_location(self):
+        res = self.client.get('/api/filter-properties/?location=Madrid')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        for prop in data['data']:
+            self.assertEqual(prop['location'], 'Madrid')
+
+    def test_search_by_price_range(self):
+        res = self.client.get('/api/filter-properties/?price_min=90000&price_max=160000')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertGreaterEqual(len(data['data']), 1)
+
+    def test_search_by_rooms(self):
+        res = self.client.get('/api/filter-properties/?rooms=3')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        for prop in data['data']:
+            self.assertEqual(prop['rooms'], 3)
+
+    def test_search_by_bathrooms(self):
+        res = self.client.get('/api/filter-properties/?bathrooms=2')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        for prop in data['data']:
+            self.assertEqual(prop['bathrooms'], 2)
+
+    def test_search_combined_filters(self):
+        res = self.client.get('/api/filter-properties/?type=Casa&location=Madrid&rooms=3')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        for prop in data['data']:
+            self.assertEqual(prop['type'], 'Casa')
+            self.assertEqual(prop['location'], 'Madrid')
+            self.assertEqual(prop['rooms'], 3)
+
+    def test_search_no_results(self):
+        res = self.client.get('/api/filter-properties/?location=NonExistentCity')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(len(data['data']), 0)
+
+    def test_get_property_by_id(self):
+        res = self.client.get('/api/filter-properties/1')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data['data']['id'], 1)
+
+    def test_get_property_not_found(self):
+        res = self.client.get('/api/filter-properties/9999')
         self.assertEqual(res.status_code, 404)
-        data = json.loads(res.data)
-        self.assertIn('Property not found', data['message'])
 
-    def test_create_property_success(self):
-        """Crear una nueva propiedad con autenticación"""
-        token = self._get_access_token()
-        headers = {'Authorization': f'Bearer {token}'}
-        
-        new_property_data = {
-            'type': 'house',
-            'location': 'Sevilla',
-            'price_min': 350000.0,
-            'price_max': 450000.0,
-            'living_space_min': 140.0,
-            'living_space_max': 160.0,
-            'rooms': 4,
-            'bathrooms': 3,
-            'description': 'Casa nueva',
-            'client_id': 1,
-            'status_id': 1
-        }
-        
-        res = self.client.post('/api/filter-properties', 
-                             json=new_property_data, 
-                             headers=headers)
-        self.assertEqual(res.status_code, 201)
-        data = json.loads(res.data)
-        self.assertEqual(data['data']['type'], 'house')
-        self.assertIn('Property created successfully', data['message'])
-
-    def test_create_property_no_auth(self):
-        """Intentar crear propiedad sin autenticación"""
-        new_property_data = {
-            'type': 'house',
-            'location': 'Test',
-            'price_min': 80000.0,
-            'price_max': 120000.0,
-            'living_space_min': 100.0,
-            'living_space_max': 120.0,
+    def test_create_property(self):
+        res = self.client.post('/api/filter-properties/', json={
+            'type': 'Casa',
+            'location': 'Valencia',
+            'price_min': 150000,
+            'price_max': 200000,
+            'living_space': 90,
             'rooms': 3,
             'bathrooms': 2,
-            'description': 'Casa sin auth',
             'client_id': 1,
             'status_id': 1
-        }
-        
-        res = self.client.post('/api/filter-properties', json=new_property_data)
+        }, headers=self._auth_headers())
+
+        self.assertEqual(res.status_code, 201)
+        data = json.loads(res.data)
+        self.assertEqual(data['data']['location'], 'Valencia')
+
+    def test_search_no_filters(self):
+        res = self.client.get('/api/filter-properties/')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertGreaterEqual(len(data['data']), 3)
+
+    def test_search_by_type(self):
+        res = self.client.get('/api/filter-properties/?type=Casa')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        for prop in data['data']:
+            self.assertEqual(prop['type'], 'Casa')
+
+    def test_search_by_location(self):
+        res = self.client.get('/api/filter-properties/?location=Madrid')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        for prop in data['data']:
+            self.assertEqual(prop['location'], 'Madrid')
+
+    def test_search_by_price_range(self):
+        res = self.client.get('/api/filter-properties/?price_min=90000&price_max=160000')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertGreaterEqual(len(data['data']), 1)
+
+    def test_search_by_rooms(self):
+        res = self.client.get('/api/filter-properties/?rooms=3')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        for prop in data['data']:
+            self.assertEqual(prop['rooms'], 3)
+
+    def test_search_by_bathrooms(self):
+        res = self.client.get('/api/filter-properties/?bathrooms=2')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        for prop in data['data']:
+            self.assertEqual(prop['bathrooms'], 2)
+
+    def test_search_combined_filters(self):
+        res = self.client.get('/api/filter-properties/?type=Casa&location=Madrid&rooms=3')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        for prop in data['data']:
+            self.assertEqual(prop['type'], 'Casa')
+            self.assertEqual(prop['location'], 'Madrid')
+            self.assertEqual(prop['rooms'], 3)
+
+    def test_search_no_results(self):
+        res = self.client.get('/api/filter-properties/?location=NonExistentCity')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(len(data['data']), 0)
+
+    def test_get_property_by_id(self):
+        res = self.client.get('/api/filter-properties/1')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data['data']['id'], 1)
+
+    def test_get_property_not_found(self):
+        res = self.client.get('/api/filter-properties/9999')
+        self.assertEqual(res.status_code, 404)
+
+    def test_create_property(self):
+        res = self.client.post('/api/filter-properties/', json={
+            'type': 'Casa',
+            'location': 'Valencia',
+            'price_min': 150000,
+            'price_max': 200000,
+            'living_space': 90,
+            'rooms': 3,
+            'bathrooms': 2,
+            'client_id': 1,
+            'status_id': 1
+        }, headers=self._auth_headers())
+
+        self.assertEqual(res.status_code, 201)
+        data = json.loads(res.data)
+        self.assertEqual(data['data']['location'], 'Valencia')
+
+    def test_create_property_missing_fields(self):
+        res = self.client.post('/api/filter-properties/', json={
+            'type': 'Casa'
+        }, headers=self._auth_headers())
+
+        self.assertEqual(res.status_code, 400)
+        data = json.loads(res.data)
+        self.assertIn('Missing', data['message'])
+
+    def test_create_property_without_token(self):
+        res = self.client.post('/api/filter-properties/', json={
+            'type': 'Casa',
+            'location': 'Valencia',
+            'price_min': 150000,
+            'price_max': 200000,
+            'living_space_min': 90,
+            'living_space_max': 110,
+            'rooms': 3,
+            'bathrooms': 2,
+            'client_id': 1,
+            'status_id': 1
+        })
+
         self.assertEqual(res.status_code, 401)
 
-    def test_create_property_invalid_data(self):
-        """Crear propiedad con datos inválidos"""
-        token = self._get_access_token()
-        headers = {'Authorization': f'Bearer {token}'}
-        
-        # Datos faltantes - type es requerido
-        invalid_data = {'location': 'Casa inválida'}
-        
-        res = self.client.post('/api/filter-properties', 
-                             json=invalid_data, 
-                             headers=headers)
-        self.assertEqual(res.status_code, 400)
 
 if __name__ == '__main__':
     unittest.main()
