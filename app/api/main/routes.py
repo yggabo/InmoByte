@@ -11,6 +11,11 @@ def hello_world():
     return render_template('main/home.html')
 
 
+@bp.route('/filter-properties')
+def filter_properties():
+    return render_template('main/jinja_filter.html')
+
+
 @bp.route('/protected', methods=['GET'])
 @jwt_required()
 def protected():

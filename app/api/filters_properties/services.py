@@ -40,14 +40,14 @@ class PropertyService:
         if filters.get('living_space_min'):
             try:
                 min_space = float(filters['living_space_min'])
-                query = query.filter(Property.living_space_min >= min_space)
+                query = query.filter(Property.living_space >= min_space)
             except (ValueError, TypeError):
                 pass
 
         if filters.get('living_space_max'):
             try:
                 max_space = float(filters['living_space_max'])
-                query = query.filter(Property.living_space_min <= max_space)
+                query = query.filter(Property.living_space <= max_space)
             except (ValueError, TypeError):
                 pass
             

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Filtrar propiedades</title>
+    <style>
+        :root {
+            --bg: #f4efe7;
+            --surface: #ffffff;
+            --text: #2d281f;
+            --muted: #7b6f62;
+            --primary: #c49562;
+            --primary-dark: #a47c4c;
+            --accent: #e6d2b7;
+            --border: rgba(157, 118, 70, 0.16);
+            --shadow: 0 16px 32px rgba(83, 70, 54, 0.12);
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4efe7; color: var(--text); }
+        .page { max-width: 1180px; margin: 0 auto; padding: 24px 18px 36px; }
+        .hero { display: grid; gap: 12px; margin-bottom: 22px; }
+        .hero h1 { margin: 0; font-size: clamp(2.1rem, 2.6vw, 3rem); line-height: 1.05; letter-spacing: -0.04em; color: #6d563e; }
+        .hero p { margin: 0; color: var(--muted); font-size: 1rem; max-width: 700px; }
+        .card { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); box-shadow: var(--shadow); padding: 26px; }
+        .form-grid { display: grid; grid-template-columns: repeat(3, minmax(210px, 1fr)); gap: 16px; }
+        .form-grid .wide { grid-column: span 2; }
+        label { display: block; font-size: 0.92rem; margin-bottom: 8px; color: #5b4c3f; font-weight: 700; }
+        input, select { width: 100%; padding: 12px 14px; border: 1px solid rgba(157, 118, 70, 0.22); border-radius: 8px; background: #fbf5ed; color: var(--text); font-size: 0.96rem; transition: border-color .18s ease, box-shadow .18s ease; }
+        input::placeholder, select::placeholder { color: #9f8b7b; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(196, 149, 98, 0.14); }
+        button { margin-top: 6px; background: linear-gradient(135deg, #d5ab7b, #af7f52); color: #2d241b; font-size: 1rem; font-weight: 700; border: none; border-radius: 8px; padding: 14px 24px; cursor: pointer; box-shadow: 0 12px 24px rgba(157, 118, 70, 0.16); transition: transform .2s ease, filter .2s ease; }
+        button:hover { transform: translateY(-1px); filter: brightness(1.05); }
+        .search-info { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; }
+        .search-info span { color: var(--muted); }
+        .small { font-size: 0.92rem; color: #8c7d6f; }
+        #results { margin-top: 24px; }
+        .message { margin-top: 16px; padding: 16px 18px; border-radius: 10px; background: #f9e8ce; color: #5b4734; font-weight: 700; }
+        .properties-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 22px; }
+        .property-card { background: #fff8f0; border: 1px solid rgba(157, 118, 70, 0.18); border-radius: 10px; padding: 22px; box-shadow: 0 12px 28px rgba(83, 70, 54, 0.12); transition: transform .2s ease, box-shadow .2s ease; }
+        .property-card:hover { transform: translateY(-2px); box-shadow: 0 18px 36px rgba(83, 70, 54, 0.16); }
+        .property-card h2 { margin: 0 0 10px; font-size: 1.18rem; color: #5a4735; }
+        .property-card .meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; font-size: 0.94rem; color: #7c6a59; }
+        .property-card .meta span { padding: 6px 10px; border-radius: 999px; background: rgba(196, 149, 98, 0.18); color: #5a4735; }
+        .property-card p { margin: 0 0 14px; line-height: 1.65; color: #6d5c50; min-height: 54px; }
+        .property-card .footer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .property-card .footer div { padding: 12px 14px; border-radius: 10px; background: #f6e3cb; font-size: 0.94rem; color: #5a4735; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="hero">
+            <div>
+                <h1>Filtrar propiedades</h1>
+                <p>Encuentra tu próxima casa con un diseño claro y sencillo. Ajusta tipo, ubicación, precio y superficie en un solo formulario.</p>
+            </div>
+        </div>
+        <div class="card">
+            <form id="filter-form">
+                <div class="form-grid">
+                    <div>
+                        <label for="type">Tipo</label>
+                        <input id="type" name="type" type="text" placeholder="Ej. casa, departamento">
+                    </div>
+                    <div class="wide">
+                        <label for="location">Ubicación</label>
+                        <input id="location" name="location" type="text" placeholder="Ej. Madrid">
+                    </div>
+                    <div>
+                        <label for="status_id">Estado (ID)</label>
+                        <input id="status_id" name="status-ID" type="number" placeholder="Ej. 1">
+                    </div>
+                <div>
+                    <label for="min_price">Precio mínimo</label>
+                    <input id="min_price" name="min_price" type="number" step="0.01" placeholder="Ej. 100000">
+                </div>
+                <div>
+                    <label for="max_price">Precio máximo</label>
+                    <input id="max_price" name="max_price" type="number" step="0.01" placeholder="Ej. 300000">
+                </div>
+                <div>
+                    <label for="living_space_min">Superficie mínima</label>
+                    <input id="living_space_min" name="living_space_min" type="number" step="0.1" placeholder="Ej. 60">
+                </div>
+                <div>
+                    <label for="living_space_max">Superficie máxima</label>
+                    <input id="living_space_max" name="living_space_max" type="number" step="0.1" placeholder="Ej. 120">
+                </div>
+                <div>
+                    <label for="rooms">Habitaciones mínimas</label>
+                    <input id="rooms" name="rooms" type="number" placeholder="Ej. 2">
+                </div>
+                <div>
+                    <label for="bathrooms">Baños mínimos</label>
+                    <input id="bathrooms" name="bathrooms" type="number" placeholder="Ej. 1">
+                </div>
+            </div>
+            <div class="search-info">
+                <button type="submit">Buscar propiedades</button>
+                <span class="small">Encuentra propiedades según tus filtros seleccionados.</span>
+            </div>
+        </form>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const form = document.getElementById('filter-form');
+        const results = document.getElementById('results');
+
+        function showMessage(text) {
+            results.innerHTML = `<div class="message">${text}</div>`;
+        }
+
+        function renderProperties(properties) {
+            if (!properties || properties.length === 0) {
+                showMessage('No se encontraron propiedades con esos filtros.');
+                return;
+            }
+
+            const cards = properties.map(p => `
+                <article class="property-card">
+                    <h2>${p.type ? p.type.charAt(0).toUpperCase() + p.type.slice(1) : 'Propiedad'}</h2>
+                    <div class="meta">
+                        <span>${p.location || 'Ubicación desconocida'}</span>
+                        <span>Estado ID: ${p.status_id ?? '-'}</span>
+                    </div>
+                    <p>${p.description || 'Sin descripción disponible.'}</p>
+                    <div class="footer">
+                        <div>Precio: ${p.price_min ?? '-'} €</div>
+                        <div>Superficie: ${p.living_space ?? '-'} m²</div>
+                        <div>Hab: ${p.rooms ?? '-'}</div>
+                        <div>Baños: ${p.bathrooms ?? '-'}</div>
+                    </div>
+                </article>
+            `).join('');
+
+            results.innerHTML = `
+                <div class="message">Se encontraron ${properties.length} propiedades.</div>
+                <div class="properties-grid">${cards}</div>
+            `;
+        }
+
+        async function searchProperties(queryString) {
+            try {
+                const response = await fetch(`/api/filter-properties${queryString}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showMessage(`Error al buscar propiedades: ${data.message || response.statusText}`);
+                    return;
+                }
+
+                renderProperties(data.data || []);
+            } catch (error) {
+                showMessage('Error de red al conectar con la API.');
+            }
+        }
+
+        form.addEventListener('submit', event => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+
+            for (const [key, value] of formData.entries()) {
+                if (value.trim() !== '') {
+                    params.append(key, value.trim());
+                }
+            }
+
+            const queryString = params.toString() ? `?${params.toString()}` : '';
+            window.history.replaceState({}, '', `/filter-properties${queryString}`);
+            searchProperties(queryString);
+        });
+
+        if (window.location.search) {
+            searchProperties(window.location.search);
+        }
+    </script>
+</body>
+</html>
