@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
-from flasgger import Swagger
+import flasgger
 
 from app.core.config import config_by_name
 from app.core.extensions import db, jwt, bcrypt, migrate
@@ -44,7 +44,7 @@ def create_app(config_name=None):
             'description': 'API for real estate management system'
         }
     }
-    Swagger(app)
+    flasgger.Swagger(app)
 
     register_cors(app)
     register_error_handlers(app)
