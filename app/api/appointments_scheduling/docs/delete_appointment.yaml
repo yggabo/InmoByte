@@ -1,0 +1,16 @@
+Eliminar una cita programada.
+---
+tags:
+  - Appointments
+security:
+  - Bearer: []
+parameters:
+  - name: appointment_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Cita eliminada exitosamente
+  404:
+    description: Cita no encontrada

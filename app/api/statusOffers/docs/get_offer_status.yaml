@@ -1,0 +1,16 @@
+Obtener un estado de oferta específico por ID.
+---
+tags:
+  - StatusOffers
+security:
+  - Bearer: []
+parameters:
+  - name: status_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Detalles del estado
+  404:
+    description: Estado no encontrado

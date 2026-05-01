@@ -1,0 +1,14 @@
+Obtener detalles de una propiedad específica (vía filtros).
+---
+tags:
+  - Filters
+parameters:
+  - name: property_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Detalles de la propiedad
+  404:
+    description: Propiedad no encontrada

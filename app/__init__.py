@@ -7,6 +7,7 @@ from app.core.config import config_by_name
 from app.core.extensions import db, jwt, bcrypt, migrate
 from app.core.errors import register_error_handlers
 from app.core.jwt_handlers import register_jwt_handlers
+from app.core.swagger_config import swagger_config
 from app.core.cors_config import register_cors
 from app.core.blueprints import register_blueprints
 from app.core.models import register_models
@@ -35,15 +36,7 @@ def create_app(config_name=None):
     bcrypt.init_app(app)
     migrate.init_app(app, db)
 
-    app.config['SWAGGER'] = {
-        'title': 'InmoByte API',
-        'uiversion': 3,
-        'info': {
-            'title': 'InmoByte API',
-            'version': '1.0',
-            'description': 'API for real estate management system'
-        }
-    }
+    app.config['SWAGGER'] = swagger_config
     flasgger.Swagger(app)
 
     register_cors(app)

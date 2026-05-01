@@ -1,0 +1,26 @@
+Crear un nuevo perfil de usuario.
+---
+tags:
+  - UserProfile
+security:
+  - Bearer: []
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        role_id:
+          type: integer
+        full_name:
+          type: string
+        phone:
+          type: string
+responses:
+  201:
+    description: Perfil creado exitosamente
+  400:
+    description: Error en los datos o perfil ya existente

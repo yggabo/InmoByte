@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, request, jsonify
 from .services import (
     register_property, get_all_properties, get_property_by_id, 
@@ -13,6 +14,7 @@ schema = PropertySchema()
 
 @bp.route("/properties", methods=["POST"])
 @jwt_required()
+@swag_from('docs/create_property.yaml')
 def create_property():
     data = request.get_json()
     errors = schema.validate(data)
@@ -26,6 +28,7 @@ def create_property():
 
 @bp.route("/properties", methods=["GET"])
 @jwt_required()
+@swag_from('docs/get_properties.yaml')
 def get_properties():
     properties = get_all_properties()
     # many=True le indica al esquema que vamos a procesar una LISTA de propiedades
@@ -33,6 +36,7 @@ def get_properties():
 
 @bp.route("/properties/<int:property_id>", methods=["GET"])
 @jwt_required()
+@swag_from('docs/get_property.yaml')
 def get_property(property_id):
     prop = get_property_by_id(property_id)
     if not prop:
@@ -41,6 +45,7 @@ def get_property(property_id):
 
 @bp.route("/properties/<int:property_id>", methods=["PUT"])
 @jwt_required()
+@swag_from('docs/edit_property.yaml')
 def edit_property(property_id):
     data = request.get_json()
     # partial=True permite que no todos los campos sean obligatorios al editar
@@ -55,6 +60,7 @@ def edit_property(property_id):
 
 @bp.route("/properties/<int:property_id>", methods=["DELETE"])
 @jwt_required()
+@swag_from('docs/remove_property.yaml')
 def remove_property(property_id):
     if delete_property(property_id):
         return jsonify({"message": "Propiedad eliminada correctamente"}), 200
@@ -62,6 +68,7 @@ def remove_property(property_id):
 
 @bp.route("/properties/<int:property_id>/assign-agent", methods=["PATCH"])
 @jwt_required()
+@swag_from('docs/assign_agent.yaml')
 def assign(property_id):
     data = request.get_json()
     try:
@@ -74,6 +81,7 @@ def assign(property_id):
 
 @bp.route("/properties/<int:property_id>/appointments", methods=["GET"])
 @jwt_required()
+@swag_from('docs/get_property_appointments.yaml')
 def get_property_appointments(property_id):
     filters = {'property_id': property_id}
     appointments = appointment_services.get_appointments(filters)

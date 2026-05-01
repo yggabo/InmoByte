@@ -1,0 +1,21 @@
+Crear un nuevo estado de propiedad.
+---
+tags:
+  - PropertyStatus
+security:
+  - Bearer: []
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: DISPONIBLE
+responses:
+  201:
+    description: Estado creado exitosamente
+  400:
+    description: El estado ya existe o datos inválidos

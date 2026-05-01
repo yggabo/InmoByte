@@ -1,0 +1,34 @@
+Actualizar el estado de una oferta.
+---
+tags:
+  - Offers
+summary: Update offer status
+description: Updates the status of an offer (accept=2, reject=3, cancel=4)
+parameters:
+  - name: offer_id
+    in: path
+    required: true
+    schema:
+      type: integer
+    description: Offer ID
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - status_id
+      properties:
+        status_id:
+          type: integer
+          enum: [2, 3, 4]
+          description: Status ID (2=ACEPTADA, 3=RECHAZADA, 4=CANCELADA)
+responses:
+  200:
+    description: Offer status updated successfully
+  400:
+    description: Invalid data
+  404:
+    description: Offer not found
+  500:
+    description: Internal server error

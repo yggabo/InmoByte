@@ -1,0 +1,20 @@
+Buscar propiedades con filtros avanzados.
+---
+tags:
+  - Filters
+parameters:
+  - name: type
+    in: query
+    type: string
+  - name: location
+    in: query
+    type: string
+  - name: price_min
+    in: query
+    type: number
+  - name: price_max
+    in: query
+    type: number
+responses:
+  200:
+    description: Lista de propiedades filtradas

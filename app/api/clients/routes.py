@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, request
 from app.api.clients import services
 from app.api.clients.schemas import client_create_schema, client_update_schema
@@ -11,6 +12,7 @@ bp = Blueprint('clients', __name__)
 
 @bp.route('', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_all_clients.yaml')
 def get_all_clients():
     clients = services.get_all_clients()
     return success_response(data=[client.to_dict() for client in clients])
@@ -18,6 +20,7 @@ def get_all_clients():
 
 @bp.route('/<int:client_id>', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_client.yaml')
 def get_client(client_id):
     client = services.get_client_by_id(client_id)
     if not client:
@@ -27,6 +30,7 @@ def get_client(client_id):
 
 @bp.route('', methods=['POST'])
 @jwt_required()
+@swag_from('docs/create_client.yaml')
 def create_client():
     try:
         data = client_create_schema.load(request.get_json())
@@ -43,6 +47,7 @@ def create_client():
 
 @bp.route('/<int:client_id>', methods=['PUT'])
 @jwt_required()
+@swag_from('docs/update_client.yaml')
 def update_client(client_id):
     try:
         data = client_update_schema.load(request.get_json())
@@ -63,6 +68,7 @@ def update_client(client_id):
 
 @bp.route('/<int:client_id>', methods=['DELETE'])
 @jwt_required()
+@swag_from('docs/delete_client.yaml')
 def delete_client(client_id):
     client = services.delete_client(client_id)
     if not client:

@@ -1,0 +1,20 @@
+Obtener la lista de todos los clientes.
+---
+tags:
+  - Clients
+security:
+  - Bearer: []
+responses:
+  200:
+    description: Lista de clientes obtenida exitosamente
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+          email:
+            type: string

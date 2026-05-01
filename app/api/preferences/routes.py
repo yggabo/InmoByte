@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, request
 from app.api.preferences.services import PreferenceService
 from app.core.utils import success_response, error_response
@@ -9,72 +10,8 @@ bp = Blueprint('preferences', __name__)
 
 @bp.route('/', methods=['POST'])
 @jwt_required()
+@swag_from('docs/create_preference.yaml')
 def create_preference():
-    """
-    Create preferences for a client
-    ---
-    tags:
-      - Preferences
-    summary: Create client preferences
-    description: Creates preferences for a specific client
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          required:
-            - client_id
-            - property_type_id
-            - price_min
-            - price_max
-            - location
-            - bedrooms
-            - bathrooms
-            - additional_features
-            - living_space_min
-            - living_space_max
-          properties:
-            client_id:
-              type: integer
-              description: Client ID
-            property_type_id:
-              type: integer
-              description: Property type ID (FK to property_types table)
-            price_min:
-              type: number
-              description: Minimum price
-            price_max:
-              type: number
-              description: Maximum price
-            location:
-              type: string
-              description: Preferred location
-            bedrooms:
-              type: integer
-              description: Number of bedrooms
-            bathrooms:
-              type: integer
-              description: Number of bathrooms
-            additional_features:
-              type: object
-              description: Additional features as JSON
-            living_space_min:
-              type: number
-              description: Minimum living space in m²
-            living_space_max:
-              type: number
-              description: Maximum living space in m²
-    responses:
-      201:
-        description: Preferences created successfully
-      400:
-        description: Missing required fields or invalid data
-      409:
-        description: Preferences already exist for this client
-    security:
-      - JWT: []
-    """
     data = request.get_json()
 
     if not data:
@@ -99,29 +36,8 @@ def create_preference():
 
 @bp.route('/<int:client_id>', methods=['GET'])
 @jwt_required()
+@swag_from('docs/get_preference.yaml')
 def get_preference(client_id):
-    """
-    Get preferences for a client
-    ---
-    tags:
-      - Preferences
-    summary: Get client preferences
-    description: Retrieves preferences for a specific client
-    parameters:
-      - name: client_id
-        in: path
-        required: true
-        schema:
-          type: integer
-        description: Client ID
-    responses:
-      200:
-        description: Preferences retrieved successfully
-      404:
-        description: Preferences not found
-    security:
-      - JWT: []
-    """
     try:
         preference = PreferenceService.get_preference_by_client(client_id)
         return success_response(data=preference.to_dict())
@@ -131,64 +47,8 @@ def get_preference(client_id):
 
 @bp.route('/<int:client_id>', methods=['PUT'])
 @jwt_required()
+@swag_from('docs/update_preference.yaml')
 def update_preference(client_id):
-    """
-    Update preferences for a client
-    ---
-    tags:
-      - Preferences
-    summary: Update client preferences
-    description: Updates preferences for a specific client
-    parameters:
-      - name: client_id
-        in: path
-        required: true
-        schema:
-          type: integer
-        description: Client ID
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            property_type_id:
-              type: integer
-              description: Property type ID
-            price_min:
-              type: number
-              description: Minimum price
-            price_max:
-              type: number
-              description: Maximum price
-            location:
-              type: string
-              description: Preferred location
-            bedrooms:
-              type: integer
-              description: Number of bedrooms
-            bathrooms:
-              type: integer
-              description: Number of bathrooms
-            additional_features:
-              type: object
-              description: Additional features as JSON
-            living_space_min:
-              type: number
-              description: Minimum living space in m²
-            living_space_max:
-              type: number
-              description: Maximum living space in m²
-    responses:
-      200:
-        description: Preferences updated successfully
-      400:
-        description: No data provided
-      404:
-        description: Preferences not found
-    security:
-      - JWT: []
-    """
     data = request.get_json()
 
     if not data:

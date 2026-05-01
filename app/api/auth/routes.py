@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, request
 from datetime import datetime, timezone, timedelta
 from app.api.auth.services import AuthService
@@ -15,6 +16,7 @@ from flask_jwt_extended import (
 bp = Blueprint('auth', __name__)
 
 @bp.route('/register', methods=['POST'])
+@swag_from('docs/register.yaml')
 def register():
     data = request.get_json()
     if not data or not data.get('username') or not data.get('email') or not data.get('password'):
@@ -27,6 +29,7 @@ def register():
         return error_response(e.message, status_code=e.status_code)
 
 @bp.route('/login', methods=['POST'])
+@swag_from('docs/login.yaml')
 def login():
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password'):
@@ -53,6 +56,7 @@ def login():
 
 @bp.route('/logout', methods=['POST'])
 @jwt_required()
+@swag_from('docs/logout.yaml')
 def logout():
     jti = get_jwt()["jti"]
     AuthService.revoke_token(jti)
@@ -61,6 +65,7 @@ def logout():
 
 @bp.route('/keep-alive', methods=['POST'])
 @jwt_required()
+@swag_from('docs/keep_alive.yaml')
 def keep_alive():
     jwt_data = get_jwt()
     exp_timestamp = jwt_data["exp"]

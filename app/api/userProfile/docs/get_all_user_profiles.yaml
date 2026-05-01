@@ -1,0 +1,9 @@
+Obtener todos los perfiles de usuario.
+---
+tags:
+  - UserProfile
+security:
+  - Bearer: []
+responses:
+  200:
+    description: Lista de perfiles obtenida exitosamente

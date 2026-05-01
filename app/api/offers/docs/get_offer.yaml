@@ -1,0 +1,18 @@
+Obtener detalles de una sola oferta por ID.
+---
+tags:
+  - Offers
+summary: Get offer details
+description: Retrieves details of a specific offer
+parameters:
+  - name: offer_id
+    in: path
+    required: true
+    schema:
+      type: integer
+    description: Offer ID
+responses:
+  200:
+    description: Offer retrieved successfully
+  404:
+    description: Offer not found

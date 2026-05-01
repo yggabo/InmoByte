@@ -1,0 +1,14 @@
+Obtener todas las citas asociadas a una propiedad.
+---
+tags:
+  - Properties
+security:
+  - Bearer: []
+parameters:
+  - name: property_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Listado de citas de la propiedad
