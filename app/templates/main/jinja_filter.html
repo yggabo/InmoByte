@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Filtrar propiedades</title>
+    <style>
+        :root {
+            --bg: #e5e5e5;
+            --surface: #f0ebe4;
+            --text: #3d2f24;
+            --muted: #7f7468;
+            --border: #3a2d24;
+            --panel: #ece3d8;
+            --panel-soft: #dcd2c7;
+            --accent-blue: #c8d4e2;
+            --accent-sand: #d6b78b;
+        }
+
+        @font-face {
+            font-family: 'Saint George';
+            src: url('{{ url_for('static', filename='fonts/SaintGeorge.woff2') }}') format('woff2'),
+                 url('{{ url_for('static', filename='fonts/SaintGeorge.woff') }}') format('woff');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+        .page { max-width: 1240px; margin: 0 auto; padding: 24px 18px 36px; }
+        .topbar { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 24px; }
+        .logo-wrapper { display: inline-flex; align-items: center; justify-content: center; width: 340px; height: 160px; border: none; background: transparent; padding: 0; position: relative; z-index: 1; }
+        .logo { max-width: 100%; max-height: 100%; object-fit: contain; display: block; opacity: 1; transform: scale(1.15); }
+        .brand-name { margin: 0; top: 2.2rem ; margin-left: -140px; font-family: 'Saint George', serif; font-size: 4.5rem; color: #000000; line-height: 1; letter-spacing: -0.1em; z-index: 2; position: relative; }
+        .topbar-title { margin: 0; font-size: 2.75rem; font-weight: 800; color: #3b322d; }
+        .hero { margin-bottom: 18px; }
+        .hero h1 { margin: 0; font-size: clamp(2rem, 2.4vw, 2.8rem); color: #3b322d; }
+        .hero p { display: none; }
+        .layout { display: grid; grid-template-columns: 1fr; gap: 24px; }
+        .layout.has-results { grid-template-columns: 420px minmax(0, 1fr); align-items: start; }
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; box-shadow: none; padding: 24px; }
+        .sidebar-card { padding: 22px; background: var(--panel); }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .col-span-2 { grid-column: span 2; }
+        label { display: block; margin-bottom: 8px; font-size: 0.95rem; font-weight: 700; color: #3b322d; }
+        input, select { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 6px; background: #f8f2e8; color: var(--text); font-size: 0.96rem; }
+        input::placeholder, select::placeholder { color: #8b8074; }
+        input:focus, select:focus { outline: 2px solid rgba(93, 106, 142, 0.35); outline-offset: 0; }
+        button { margin-top: 6px; border: 1px solid var(--border); background: #725338; color: #fff; font-size: 1rem; font-weight: 700; border-radius: 6px; padding: 14px 24px; cursor: pointer; }
+        button:hover { opacity: 0.95; }
+        .search-info { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; }
+        .search-info span { color: var(--muted); }
+        .small { font-size: 0.92rem; color: #6f6255; }
+        #results { min-height: 240px; }
+        .results-card { background: var(--accent-blue); border: 1px solid var(--border); border-radius: 8px; padding: 22px; }
+        .message { margin: 0; padding: 16px 18px; border: 1px solid var(--border); border-radius: 8px; background: var(--accent-sand); color: #231f1b; font-weight: 700; }
+        .properties-grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 18px; }
+        .property-card { background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+        .property-card h2 { margin: 0 0 10px; font-size: 1.18rem; color: #231f1b; }
+        .property-card .meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; font-size: 0.94rem; color: #4c3d32; }
+        .property-card .meta span { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel-soft); color: #231f1b; }
+        .property-card p { margin: 0 0 14px; line-height: 1.65; color: #4d443b; min-height: 54px; }
+        .property-card .footer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+        .property-card .footer div { padding: 12px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel-soft); color: #231f1b; text-align: center; }
+        @media (max-width: 900px) {
+            .layout.has-results { grid-template-columns: 1fr; }
+            .layout, .layout.has-results { display: flex; flex-direction: column; width: 100%; }
+            .topbar { flex-wrap: wrap; }
+            .topbar-title { font-size: 1.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="topbar">
+            <div class="logo-wrapper">
+                <img class="logo" src="../../static/images/logo.png" alt="Logo">
+            </div>
+            <h2 class="brand-name">Inmobyte</h2>
+        </div>
+        <div class="hero">
+            <h1 class="topbar-title">Filtrar propiedades</h1>
+        </div>
+        <div class="layout" id="layout">
+            <div class="card sidebar-card">
+                <form id="filter-form">
+                    <div class="form-grid">
+                        <div class="col-span-2">
+                            <label for="status_id">Estado de la propiedad</label>
+                            <select id="status_id" name="status-ID">
+                                <option value="">Todos los estados</option>
+                                {% for s in options.statuses %}
+                                <option value="{{ s.id }}">{{ s.name|capitalize }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label for="type">Tipo de propiedad</label>
+                            <select id="type" name="type">
+                                <option value="">Todos los tipos</option>
+                                {% for t in options.types %}
+                                <option value="{{ t }}">{{ t|capitalize }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label for="location">Ubicación</label>
+                            <select id="location" name="location">
+                                <option value="">Todas las ubicaciones</option>
+                                {% for l in options.locations %}
+                                <option value="{{ l }}">{{ l }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="min_price">Precio mín.</label>
+                            <input id="min_price" name="min_price" type="number" step="0.01" placeholder="Ej. 100000">
+                        </div>
+                        <div>
+                            <label for="max_price">Precio máx.</label>
+                            <input id="max_price" name="max_price" type="number" step="0.01" placeholder="Ej. 300000">
+                        </div>
+                        <div>
+                            <label for="living_space_min">Sup. mín. (m²)</label>
+                            <input id="living_space_min" name="living_space_min" type="number" step="0.1" placeholder="Ej. 60">
+                        </div>
+                        <div>
+                            <label for="living_space_max">Sup. máx. (m²)</label>
+                            <input id="living_space_max" name="living_space_max" type="number" step="0.1" placeholder="Ej. 120">
+                        </div>
+                        <div>
+                            <label for="rooms">Habitaciones mín.</label>
+                            <input id="rooms" name="rooms" type="number" placeholder="Ej. 2">
+                        </div>
+                        <div>
+                            <label for="bathrooms">Baños mín.</label>
+                            <input id="bathrooms" name="bathrooms" type="number" placeholder="Ej. 1">
+                        </div>
+                    </div>
+                    <div class="search-info">
+                        <div>
+                            <button type="submit">Buscar propiedades</button>
+                            <button type="reset" id="reset-button" style="background: #e5e5e5; color: #3d2f24; margin-left: 8px;">Limpiar filtros</button>
+                        </div>
+                        <span class="small">Encuentra propiedades según tus filtros seleccionados.</span>
+                    </div>
+                </form>
+            </div>
+            <div id="results" class="card results-card">
+                <div class="message">Aplica los filtros y los resultados aparecerán a la derecha.</div>
+            </div>
+        </div>
+
+    <script>
+        const form = document.getElementById('filter-form');
+        const results = document.getElementById('results');
+        const layout = document.getElementById('layout');
+        const resetBtn = document.getElementById('reset-button');
+
+        resetBtn.addEventListener('click', () => {
+            setTimeout(() => {
+                form.dispatchEvent(new Event('submit'));
+            }, 10);
+        });
+
+        function showMessage(text) {
+            layout.classList.add('has-results');
+            results.innerHTML = `<div class="message">${text}</div>`;
+        }
+
+        function renderProperties(properties) {
+            layout.classList.add('has-results');
+            if (!properties || properties.length === 0) {
+                showMessage('No se encontraron propiedades con esos filtros.');
+                return;
+            }
+
+            const cards = properties.map(p => `
+                <article class="property-card">
+                    <h2>${p.type ? p.type.charAt(0).toUpperCase() + p.type.slice(1) : 'Propiedad'}</h2>
+                    <div class="meta">
+                        <span>${p.location || 'Ubicación desconocida'}</span>
+                        <span>Estado: ${p.status ? p.status.name.charAt(0).toUpperCase() + p.status.name.slice(1) : '-'}</span>
+                    </div>
+                    <p>${p.description || 'Sin descripción disponible.'}</p>
+                    <div class="footer">
+                        <div>Precio: ${p.price_min ?? '-'} €</div>
+                        <div>Superficie: ${p.living_space ?? '-'} m²</div>
+                        <div>Hab: ${p.rooms ?? '-'}</div>
+                        <div>Baños: ${p.bathrooms ?? '-'}</div>
+                    </div>
+                </article>
+            `).join('');
+
+            results.innerHTML = `
+                <div class="message">Se encontraron ${properties.length} propiedades.</div>
+                <div class="properties-grid">${cards}</div>
+            `;
+        }
+
+        async function searchProperties(queryString) {
+            try {
+                const response = await fetch(`/api/filter-properties${queryString}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showMessage(`Error al buscar propiedades: ${data.message || response.statusText}`);
+                    return;
+                }
+
+                renderProperties(data.data || []);
+            } catch (error) {
+                showMessage('Error de red al conectar con la API.');
+            }
+        }
+
+        form.addEventListener('submit', event => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+
+            for (const [key, value] of formData.entries()) {
+                if (value.trim() !== '') {
+                    params.append(key, value.trim());
+                }
+            }
+
+            const queryString = params.toString() ? `?${params.toString()}` : '';
+            window.history.replaceState({}, '', `/filter-properties${queryString}`);
+            searchProperties(queryString);
+        });
+
+        if (window.location.search) {
+            searchProperties(window.location.search);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+Registrar un nuevo usuario en el sistema.
+---
+tags:
+  - Auth
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        username:
+          type: string
+          example: john_doe
+        email:
+          type: string
+          example: john@example.com
+        password:
+          type: string
+          example: "123456"
+responses:
+  201:
+    description: Usuario registrado exitosamente
+  400:
+    description: Error en los datos proporcionados
+  500:
+    description: Error interno del servidor

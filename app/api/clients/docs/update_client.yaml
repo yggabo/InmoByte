@@ -1,0 +1,30 @@
+Actualizar la información de un cliente existente.
+---
+tags:
+  - Clients
+security:
+  - Bearer: []
+parameters:
+  - name: client_id
+    in: path
+    required: true
+    type: integer
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+responses:
+  200:
+    description: Cliente actualizado exitosamente
+  400:
+    description: Error de validación o el email ya existe
+  404:
+    description: Cliente no encontrado

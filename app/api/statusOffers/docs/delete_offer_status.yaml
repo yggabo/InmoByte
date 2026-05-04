@@ -1,0 +1,16 @@
+Eliminar un estado de oferta.
+---
+tags:
+  - StatusOffers
+security:
+  - Bearer: []
+parameters:
+  - name: status_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Estado eliminado exitosamente
+  404:
+    description: Estado no encontrado

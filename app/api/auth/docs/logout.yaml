@@ -1,0 +1,11 @@
+Cerrar la sesión actual y revocar el token.
+---
+tags:
+  - Auth
+security:
+  - Bearer: []
+responses:
+  200:
+    description: Logout exitoso
+  401:
+    description: Token inválido o ausente

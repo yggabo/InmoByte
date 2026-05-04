@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from .services import create_offer, get_offers_by_property, get_offer_by_id, update_offer_status
@@ -10,44 +11,8 @@ offer_status_schema = OfferStatusUpdateSchema()
 
 @bp.route("/", methods=["POST"])
 @jwt_required()
+@swag_from('docs/create_offer.yaml')
 def create_offer_endpoint():
-    """
-    Create a new offer (purchase or rental)
-    ---
-    tags:
-      - Offers
-    summary: Create a new offer
-    description: Creates a new offer for a property. The offer type (COMPRA/ALQUILER) is determined by the property.
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          required:
-            - offered_price
-            - property_id
-            - client_id
-          properties:
-            offered_price:
-              type: number
-              description: Offered price amount
-            property_id:
-              type: integer
-              description: Property ID (determines if offer is for purchase or rental)
-            client_id:
-              type: integer
-              description: Client ID (buyer/renter)
-    responses:
-      201:
-        description: Offer created successfully
-      400:
-        description: Invalid data or missing fields
-      409:
-        description: Property not available for offers
-      500:
-        description: Internal server error
-    """
     data = request.get_json()
     errors = offer_schema.validate(data)
     if errors:
@@ -64,27 +29,8 @@ def create_offer_endpoint():
 
 @bp.route("/properties/<int:property_id>/offers", methods=["GET"])
 @jwt_required()
+@swag_from('docs/get_property_offers.yaml')
 def get_property_offers(property_id):
-    """
-    Get all offers for a property
-    ---
-    tags:
-      - Offers
-    summary: Get property offers
-    description: Retrieves all offers associated with a specific property
-    parameters:
-      - name: property_id
-        in: path
-        required: true
-        schema:
-          type: integer
-        description: Property ID
-    responses:
-      200:
-        description: List of offers retrieved successfully
-      404:
-        description: Property not found
-    """
     offers = get_offers_by_property(property_id)
     if offers is None:
         return jsonify({"error": "Propiedad no encontrada"}), 404
@@ -93,27 +39,8 @@ def get_property_offers(property_id):
 
 @bp.route('/<int:offer_id>', methods=["GET"])
 @jwt_required()
+@swag_from('docs/get_offer.yaml')
 def get_offer_endpoint(offer_id):
-    """
-    Get a single offer by ID
-    ---
-    tags:
-      - Offers
-    summary: Get offer details
-    description: Retrieves details of a specific offer
-    parameters:
-      - name: offer_id
-        in: path
-        required: true
-        schema:
-          type: integer
-        description: Offer ID
-    responses:
-      200:
-        description: Offer retrieved successfully
-      404:
-        description: Offer not found
-    """
     offer = get_offer_by_id(offer_id)
     if not offer:
         return jsonify({"error": "Oferta no encontrada"}), 404
@@ -122,37 +49,8 @@ def get_offer_endpoint(offer_id):
 
 @bp.route('', methods=["GET"])
 @jwt_required()
+@swag_from('docs/get_all_offers.yaml')
 def get_all_offers():
-    """
-    Get all offers with optional filters
-    ---
-    tags:
-      - Offers
-    summary: List all offers
-    description: Retrieves all offers, optionally filtered by property_id, client_id, or status_id
-    parameters:
-      - name: property_id
-        in: query
-        required: false
-        schema:
-          type: integer
-        description: Filter by property ID
-      - name: client_id
-        in: query
-        required: false
-        schema:
-          type: integer
-        description: Filter by client ID
-      - name: status_id
-        in: query
-        required: false
-        schema:
-          type: integer
-        description: Filter by status ID
-    responses:
-      200:
-        description: List of offers retrieved successfully
-    """
     query = Offer.query
     
     property_id = request.args.get('property_id', type=int)
@@ -172,43 +70,8 @@ def get_all_offers():
 
 @bp.route('/<int:offer_id>/status', methods=["PATCH"])
 @jwt_required()
+@swag_from('docs/update_offer_status.yaml')
 def update_offer_status_endpoint(offer_id):
-    """
-    Update offer status
-    ---
-    tags:
-      - Offers
-    summary: Update offer status
-    description: Updates the status of an offer (accept=2, reject=3, cancel=4)
-    parameters:
-      - name: offer_id
-        in: path
-        required: true
-        schema:
-          type: integer
-        description: Offer ID
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          required:
-            - status_id
-          properties:
-            status_id:
-              type: integer
-              enum: [2, 3, 4]
-              description: Status ID (2=ACEPTADA, 3=RECHAZADA, 4=CANCELADA)
-    responses:
-      200:
-        description: Offer status updated successfully
-      400:
-        description: Invalid data
-      404:
-        description: Offer not found
-      500:
-        description: Internal server error
-    """
     data = request.get_json()
     errors = offer_status_schema.validate(data)
     if errors:

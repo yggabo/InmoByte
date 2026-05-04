@@ -1,0 +1,16 @@
+Obtener detalles de un agente específico.
+---
+tags:
+  - Agents
+security:
+  - Bearer: []
+parameters:
+  - name: agent_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Detalles del agente
+  404:
+    description: Agente no encontrado

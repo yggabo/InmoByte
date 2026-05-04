@@ -1,0 +1,28 @@
+Listar todas las ofertas con filtros opcionales.
+---
+tags:
+  - Offers
+summary: List all offers
+description: Retrieves all offers, optionally filtered by property_id, client_id, or status_id
+parameters:
+  - name: property_id
+    in: query
+    required: false
+    schema:
+      type: integer
+    description: Filter by property ID
+  - name: client_id
+    in: query
+    required: false
+    schema:
+      type: integer
+    description: Filter by client ID
+  - name: status_id
+    in: query
+    required: false
+    schema:
+      type: integer
+    description: Filter by status ID
+responses:
+  200:
+    description: List of offers retrieved successfully

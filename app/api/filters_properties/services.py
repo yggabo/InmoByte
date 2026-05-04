@@ -3,6 +3,22 @@ from app.core.extensions import db
 
 class PropertyService:
     @staticmethod
+    def get_filter_options():
+        """
+        Get distinct values for filter dropdowns.
+        """
+        from app.api.propertyStatus.models import PropertyStatus
+        types = db.session.query(Property.type).filter(Property.type != None).distinct().all()
+        locations = db.session.query(Property.location).filter(Property.location != None).distinct().all()
+        statuses = db.session.query(PropertyStatus).all()
+        
+        return {
+            'types': sorted([t[0] for t in types if t[0]]),
+            'locations': sorted([l[0] for l in locations if l[0]]),
+            'statuses': [{'id': s.id, 'name': s.name} for s in statuses]
+        }
+
+    @staticmethod
     def get_filtered_properties(filters):
         """
         Search properties based on various filters with priority for 'type' and 'location'.

@@ -1,0 +1,27 @@
+Crear un nuevo cliente.
+---
+tags:
+  - Clients
+security:
+  - Bearer: []
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Jane Doe
+        email:
+          type: string
+          example: jane@example.com
+        phone:
+          type: string
+          example: "123456789"
+responses:
+  201:
+    description: Cliente creado exitosamente
+  400:
+    description: Error de validación o el email ya existe

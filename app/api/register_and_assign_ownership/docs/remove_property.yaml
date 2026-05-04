@@ -1,0 +1,16 @@
+Eliminar una propiedad del sistema.
+---
+tags:
+  - Properties
+security:
+  - Bearer: []
+parameters:
+  - name: property_id
+    in: path
+    required: true
+    type: integer
+responses:
+  200:
+    description: Propiedad eliminada correctamente
+  404:
+    description: Propiedad no encontrada

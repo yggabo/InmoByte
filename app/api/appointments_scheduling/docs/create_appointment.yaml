@@ -1,0 +1,31 @@
+Agendar una nueva cita.
+---
+tags:
+  - Appointments
+security:
+  - Bearer: []
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        client_id:
+          type: integer
+        agent_id:
+          type: integer
+        property_id:
+          type: integer
+        date:
+          type: string
+          format: date
+          example: "2026-05-15"
+        time:
+          type: string
+          example: "10:00"
+responses:
+  201:
+    description: Cita agendada exitosamente
+  400:
+    description: Datos inválidos o conflicto de horario

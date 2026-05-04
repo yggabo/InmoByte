@@ -1,0 +1,31 @@
+Autenticar un usuario y obtener tokens de acceso.
+---
+tags:
+  - Auth
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        username:
+          type: string
+          example: john_doe
+        password:
+          type: string
+          example: "123456"
+responses:
+  200:
+    description: Login exitoso
+    schema:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        expires_in:
+          type: integer
+  401:
+    description: Credenciales inválidas

@@ -1,0 +1,14 @@
+Obtener la lista de todos los agentes.
+---
+tags:
+  - Agents
+security:
+  - Bearer: []
+parameters:
+  - name: status
+    in: query
+    type: string
+    description: Filtrar por estado (true/false)
+responses:
+  200:
+    description: Lista de agentes obtenida exitosamente
