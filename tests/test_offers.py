@@ -257,7 +257,7 @@ class OffersTestCase(unittest.TestCase):
             'client_id': self.client_id
         }, headers=self._auth_headers())
         created_data = json.loads(create_res.data)
-        offer_id = created_data['data']['id']
+        offer_id = created_data['id']
 
         res = self.client.patch(f'/api/offers/{offer_id}/status', json={
             'status_id': self.accepted_status_id
@@ -265,7 +265,7 @@ class OffersTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
-        self.assertEqual(data['data']['status'], 'Aceptada')
+        self.assertEqual(data['status'], 'Aceptada')
 
     def test_update_offer_status_reject(self):
         create_res = self.client.post('/api/offers/', json={

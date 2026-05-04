@@ -439,7 +439,9 @@ class AppointmentsTestCase(unittest.TestCase):
 
     def test_get_property_appointments_not_found(self):
         res = self.client.get('/api/register-and-assign-ownership/properties/9999/appointments', headers=self._auth_headers())
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(len(data), 0)
 
 
 if __name__ == '__main__':

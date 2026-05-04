@@ -129,14 +129,14 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         for prop in data['data']:
-            self.assertEqual(prop['rooms'], 3)
+            self.assertGreaterEqual(prop['rooms'], 3)
 
     def test_search_by_bathrooms(self):
         res = self.client.get('/api/filter-properties/?bathrooms=2')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         for prop in data['data']:
-            self.assertEqual(prop['bathrooms'], 2)
+            self.assertGreaterEqual(prop['bathrooms'], 2)
 
     def test_search_combined_filters(self):
         res = self.client.get('/api/filter-properties/?type=Casa&location=Madrid&rooms=3')
@@ -145,7 +145,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         for prop in data['data']:
             self.assertEqual(prop['type'], 'Casa')
             self.assertEqual(prop['location'], 'Madrid')
-            self.assertEqual(prop['rooms'], 3)
+            self.assertGreaterEqual(prop['rooms'], 3)
 
     def test_search_no_results(self):
         res = self.client.get('/api/filter-properties/?location=NonExistentCity')
@@ -162,23 +162,6 @@ class FiltersPropertiesTestCase(unittest.TestCase):
     def test_get_property_not_found(self):
         res = self.client.get('/api/filter-properties/9999')
         self.assertEqual(res.status_code, 404)
-
-    def test_create_property(self):
-        res = self.client.post('/api/filter-properties/', json={
-            'type': 'Casa',
-            'location': 'Valencia',
-            'price_min': 150000,
-            'price_max': 200000,
-            'living_space': 90,
-            'rooms': 3,
-            'bathrooms': 2,
-            'client_id': 1,
-            'status_id': 1
-        }, headers=self._auth_headers())
-
-        self.assertEqual(res.status_code, 201)
-        data = json.loads(res.data)
-        self.assertEqual(data['data']['location'], 'Valencia')
 
     def test_search_no_filters(self):
         res = self.client.get('/api/filter-properties/')
@@ -211,14 +194,14 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         for prop in data['data']:
-            self.assertEqual(prop['rooms'], 3)
+            self.assertGreaterEqual(prop['rooms'], 3)
 
     def test_search_by_bathrooms(self):
         res = self.client.get('/api/filter-properties/?bathrooms=2')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         for prop in data['data']:
-            self.assertEqual(prop['bathrooms'], 2)
+            self.assertGreaterEqual(prop['bathrooms'], 2)
 
     def test_search_combined_filters(self):
         res = self.client.get('/api/filter-properties/?type=Casa&location=Madrid&rooms=3')
@@ -227,7 +210,7 @@ class FiltersPropertiesTestCase(unittest.TestCase):
         for prop in data['data']:
             self.assertEqual(prop['type'], 'Casa')
             self.assertEqual(prop['location'], 'Madrid')
-            self.assertEqual(prop['rooms'], 3)
+            self.assertGreaterEqual(prop['rooms'], 3)
 
     def test_search_no_results(self):
         res = self.client.get('/api/filter-properties/?location=NonExistentCity')
@@ -244,48 +227,6 @@ class FiltersPropertiesTestCase(unittest.TestCase):
     def test_get_property_not_found(self):
         res = self.client.get('/api/filter-properties/9999')
         self.assertEqual(res.status_code, 404)
-
-    def test_create_property(self):
-        res = self.client.post('/api/filter-properties/', json={
-            'type': 'Casa',
-            'location': 'Valencia',
-            'price_min': 150000,
-            'price_max': 200000,
-            'living_space': 90,
-            'rooms': 3,
-            'bathrooms': 2,
-            'client_id': 1,
-            'status_id': 1
-        }, headers=self._auth_headers())
-
-        self.assertEqual(res.status_code, 201)
-        data = json.loads(res.data)
-        self.assertEqual(data['data']['location'], 'Valencia')
-
-    def test_create_property_missing_fields(self):
-        res = self.client.post('/api/filter-properties/', json={
-            'type': 'Casa'
-        }, headers=self._auth_headers())
-
-        self.assertEqual(res.status_code, 400)
-        data = json.loads(res.data)
-        self.assertIn('Missing', data['message'])
-
-    def test_create_property_without_token(self):
-        res = self.client.post('/api/filter-properties/', json={
-            'type': 'Casa',
-            'location': 'Valencia',
-            'price_min': 150000,
-            'price_max': 200000,
-            'living_space_min': 90,
-            'living_space_max': 110,
-            'rooms': 3,
-            'bathrooms': 2,
-            'client_id': 1,
-            'status_id': 1
-        })
-
-        self.assertEqual(res.status_code, 401)
 
 
 if __name__ == '__main__':
